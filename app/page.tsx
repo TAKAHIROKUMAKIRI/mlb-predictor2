@@ -3,23 +3,35 @@
 import { useEffect, useMemo, useState } from "react";
 
 function strength(m: any) {
-  if (!m || m.ops == null) return 0;
+  if (!m || m.ops === null || m.ops === undefined) return 0;
 
   return (
     ((m.ops - 0.7) * 170) +
     ((m.woba - 0.315) * 260) +
-    (m.wraa * 0.18) +
-    (m.wrc * 0.015) +
+    m.wraa * 0.18 +
+    m.wrc * 0.015 +
     ((4.2 - m.fip) * 12) +
-    (m.uzr * 0.45)
+    m.uzr * 0.45
   );
 }
 
 function winProbability(game: any) {
+  if (game.status === "FINAL") {
+    if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
+
+    return game.awayScore > game.homeScore
+      ? { away: 100, home: 0 }
+      : { away: 0, home: 100 };
+  }
+
   let away =
     50 +
     strength(game.awayMetrics) -
     (strength(game.homeMetrics) + 2.5);
+
+  if (game.status === "LIVE") {
+    away += ((game.awayScore || 0) - (game.homeScore || 0)) * 16;
+  }
 
   away = Math.round(Math.max(8, Math.min(92, away)));
 
@@ -30,7 +42,7 @@ function winProbability(game: any) {
 }
 
 function fmt(v: any) {
-  if (v === null || v === undefined) return "未登録";
+  if (v === null || v === undefined || v === "") return "未登録";
 
   if (typeof v === "number" && v > 0 && v < 1) {
     return v.toFixed(3).replace(/^0/, "");
@@ -43,104 +55,51 @@ function fmt(v: any) {
   return v;
 }
 
-const TEAM_METRICS: Record<string, any> = {
-  "Los Angeles Dodgers": {
-    ops: 0.781,
-    woba: 0.348,
-    wraa: 42.5,
-    wrc: 129,
-    fip: 3.58,
-    uzr: 3.4,
-  },
+function isGood(type: string, v: any) {
+  if (v === null || v === undefined) return false;
 
-  "New York Yankees": {
-    ops: 0.761,
-    woba: 0.336,
-    wraa: 28.4,
-    wrc: 122,
-    fip: 3.74,
-    uzr: 5.8,
-  },
+  if (type === "fip") return v <= 3.8;
+  if (type === "uzr") return v >= 0;
+  if (type === "ops") return v >= 0.74;
+  if (type === "woba") return v >= 0.325;
 
-  "Chicago Cubs": {
-    ops: 0.731,
-    woba: 0.320,
-    wraa: 4.5,
-    wrc: 102,
-    fip: 3.9,
-    uzr: 0.8,
-  },
+  return v >= 0;
+}
 
-  "Pittsburgh Pirates": {
-    ops: 0.676,
-    woba: 0.298,
-    wraa: -17.8,
-    wrc: 86,
-    fip: 4.16,
-    uzr: -1.4,
-  },
-
-  "Cleveland Guardians": {
-    ops: 0.726,
-    woba: 0.319,
-    wraa: 2.8,
-    wrc: 101,
-    fip: 3.67,
-    uzr: 7.2,
-  },
-
-  "Toronto Blue Jays": {
-    ops: 0.714,
-    woba: 0.315,
-    wraa: -0.8,
-    wrc: 99,
-    fip: 4.07,
-    uzr: 2.9,
-  },
-};
-
-function metricsFor(team: string) {
-  return (
-    TEAM_METRICS[team] || {
-      ops: null,
-      woba: null,
-      wraa: null,
-      wrc: null,
-      fip: null,
-      uzr: null,
-    }
-  );
+function statusLabel(status: string) {
+  if (status === "LIVE") return "速報";
+  if (status === "FINAL") return "終了";
+  if (status === "SCHEDULED") return "予定";
+  return status;
 }
 
 function Metric({
   label,
   value,
+  type,
 }: {
   label: string;
   value: any;
+  type: string;
 }) {
   return (
     <div
       style={{
-        background: "#0f172a",
+        background: "#ffffff",
+        color: "#0f172a",
         borderRadius: 14,
-        padding: 12,
+        padding: 10,
+        border: "1px solid #e2e8f0",
       }}
     >
-      <div
-        style={{
-          color: "#94a3b8",
-          fontSize: 12,
-          marginBottom: 4,
-        }}
-      >
+      <div style={{ color: "#64748b", fontSize: 12 }}>
         {label}
       </div>
-
       <div
         style={{
-          fontSize: 20,
-          fontWeight: 700,
+          fontSize: 16,
+          fontWeight: 800,
+          color: isGood(type, value) ? "#047857" : "#0f172a",
         }}
       >
         {fmt(value)}
@@ -149,9 +108,145 @@ function Metric({
   );
 }
 
+function TeamBlock({
+  side,
+  name,
+  score,
+  probable,
+  metrics,
+  probability,
+}: any) {
+  return (
+    <div
+      style={{
+        background: "#f8fafc",
+        color: "#0f172a",
+        border: "1px solid #e2e8f0",
+        borderRadius: 22,
+        padding: 16,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: 12,
+          alignItems: "flex-start",
+        }}
+      >
+        <div>
+          <div style={{ color: "#64748b", fontSize: 12 }}>
+            {side}
+          </div>
+
+          <h2
+            style={{
+              margin: "4px 0 8px",
+              fontSize: 22,
+              lineHeight: 1.2,
+            }}
+          >
+            {name}
+          </h2>
+
+          <div style={{ color: "#475569", fontSize: 14 }}>
+            予想先発：<b>{probable || "未発表"}</b>
+          </div>
+
+          <div style={{ color: "#64748b", fontSize: 12, marginTop: 4 }}>
+            指標ソース：2026実データ
+          </div>
+        </div>
+
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: 32, fontWeight: 900 }}>
+            {score ?? 0}
+          </div>
+
+          <div
+            style={{
+              display: "inline-block",
+              background: "#020617",
+              color: "#ffffff",
+              borderRadius: 999,
+              padding: "5px 10px",
+              fontSize: 12,
+              fontWeight: 800,
+              marginTop: 4,
+            }}
+          >
+            勝率 {probability}%
+          </div>
+        </div>
+      </div>
+
+      <div
+        style={{
+          height: 10,
+          background: "#e2e8f0",
+          borderRadius: 999,
+          overflow: "hidden",
+          margin: "14px 0",
+        }}
+      >
+        <div
+          style={{
+            width: `${probability}%`,
+            background: "#020617",
+            height: "100%",
+          }}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 8,
+        }}
+      >
+        <Metric label="OPS" value={metrics?.ops} type="ops" />
+        <Metric label="wOBA" value={metrics?.woba} type="woba" />
+        <Metric label="wRAA" value={metrics?.wraa} type="wraa" />
+        <Metric label="wRC" value={metrics?.wrc} type="wrc" />
+        <Metric label="FIP" value={metrics?.fip} type="fip" />
+        <Metric label="UZR" value={metrics?.uzr} type="uzr" />
+      </div>
+    </div>
+  );
+}
+
 export default function Page() {
   const [games, setGames] = useState<any[]>([]);
+  const [tab, setTab] = useState("ALL");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState("");
+  const [error, setError] = useState("");
+
+  async function loadGames() {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/mlb", {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      if (!data.ok && data.error) {
+        setError(data.error);
+      }
+
+      setGames(data.games || []);
+      setLastUpdated(new Date().toLocaleString());
+    } catch (e) {
+      setError("Vercel APIへの接続に失敗しました");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     loadGames();
@@ -161,300 +256,346 @@ export default function Page() {
     return () => clearInterval(id);
   }, []);
 
-  async function loadGames() {
-    try {
-      const res = await fetch("/api/mlb");
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
 
-      const data = await res.json();
+    return games.filter((g) => {
+      const matchTab = tab === "ALL" || g.status === tab;
 
-      const mapped =
-        data.games?.map((g: any) => ({
-          ...g,
-          awayMetrics: metricsFor(g.away),
-          homeMetrics: metricsFor(g.home),
-        })) || [];
+      const matchQuery =
+        !q ||
+        `${g.away} ${g.home} ${g.awayProbable} ${g.homeProbable}`
+          .toLowerCase()
+          .includes(q);
 
-      setGames(mapped);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+      return matchTab && matchQuery;
+    });
+  }, [games, tab, query]);
 
-  const liveGames = useMemo(
-    () => games.filter((g) => g.status.includes("In Progress")),
-    [games]
-  );
+  const liveCount = games.filter((g) => g.status === "LIVE").length;
 
   return (
     <main
       style={{
-        background: "#020617",
         minHeight: "100vh",
-        color: "white",
-        padding: 20,
-        fontFamily: "sans-serif",
+        background: "linear-gradient(135deg,#f1f5f9,#ffffff,#e2e8f0)",
+        color: "#0f172a",
+        padding: 16,
+        fontFamily:
+          'system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
       }}
     >
-      <h1
-        style={{
-          fontSize: 42,
-          marginBottom: 24,
-        }}
-      >
-        MLB速報・勝敗確率
-      </h1>
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
-          gap: 16,
-          marginBottom: 24,
-        }}
-      >
-        <div
+      <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+        <section
           style={{
-            background: "#111827",
-            padding: 20,
-            borderRadius: 20,
+            background: "#020617",
+            color: "#ffffff",
+            borderRadius: 28,
+            padding: 24,
+            marginBottom: 16,
           }}
         >
-          <div style={{ color: "#94a3b8" }}>Games</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>
-            {loading ? "--" : games.length}
-          </div>
-        </div>
-
-        <div
-          style={{
-            background: "#111827",
-            padding: 20,
-            borderRadius: 20,
-          }}
-        >
-          <div style={{ color: "#94a3b8" }}>Live</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>
-            {liveGames.length}
-          </div>
-        </div>
-      </div>
-
-      {games.map((g) => {
-        const prob = winProbability(g);
-
-        return (
           <div
-            key={g.id}
             style={{
-              background: "#0f172a",
-              borderRadius: 24,
-              padding: 24,
-              marginBottom: 20,
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: 16,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "inline-block",
+                  background: "rgba(255,255,255,0.1)",
+                  borderRadius: 999,
+                  padding: "7px 12px",
+                  fontSize: 14,
+                  marginBottom: 12,
+                }}
+              >
+                🏆 MLB Live Predictor
+              </div>
+
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: "clamp(28px,5vw,52px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.04em",
+                }}
+              >
+                MLB速報・勝敗確率ダッシュボード
+              </h1>
+
+              <p
+                style={{
+                  color: "#cbd5e1",
+                  lineHeight: 1.8,
+                  maxWidth: 820,
+                }}
+              >
+                MLB Stats APIから試合速報・予定・予想先発を取得し、
+                OPS・wOBA・wRAA・wRC・FIP・UZRを反映した勝敗確率を表示します。
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: 8,
+              }}
+            >
+              {[
+                ["Games", loading ? "..." : games.length],
+                ["Live", liveCount],
+                ["Metrics", "DATA"],
+                ["Refresh", "60s"],
+              ].map(([label, value]) => (
+                <div
+                  key={label}
+                  style={{
+                    background: "rgba(255,255,255,0.1)",
+                    borderRadius: 16,
+                    padding: 12,
+                    textAlign: "center",
+                  }}
+                >
+                  <div style={{ fontSize: 22, fontWeight: 900 }}>
+                    {value}
+                  </div>
+                  <div style={{ color: "#cbd5e1", fontSize: 12 }}>
+                    {label}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {error && (
+          <div
+            style={{
+              background: "#fff7ed",
+              color: "#9a3412",
+              borderRadius: 18,
+              padding: 14,
+              marginBottom: 16,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <section
+          style={{
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: 24,
+            padding: 14,
+            marginBottom: 16,
+            display: "grid",
+            gap: 10,
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: 8,
+            }}
+          >
+            {[
+              ["ALL", "すべて"],
+              ["LIVE", "速報"],
+              ["SCHEDULED", "予定"],
+              ["FINAL", "終了"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setTab(value)}
+                style={{
+                  border: "1px solid #e2e8f0",
+                  background: tab === value ? "#020617" : "#ffffff",
+                  color: tab === value ? "#ffffff" : "#0f172a",
+                  borderRadius: 14,
+                  padding: "10px 8px",
+                  fontWeight: 800,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="チーム名・投手名で検索"
+            style={{
+              border: "1px solid #e2e8f0",
+              borderRadius: 14,
+              padding: 12,
+              fontSize: 16,
+              width: "100%",
+            }}
+          />
+        </section>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0,1fr)",
+            gap: 16,
+          }}
+        >
+          {filtered.length === 0 && (
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: 24,
+                padding: 20,
+              }}
+            >
+              試合データ取得中、または対象試合がありません。
+            </div>
+          )}
+
+          {filtered.map((game) => {
+            const prob = winProbability(game);
+
+            return (
+              <div
+                key={game.id}
+                style={{
+                  background: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 28,
+                  padding: 18,
+                  boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    marginBottom: 14,
+                  }}
+                >
+                  <span
+                    style={{
+                      background: "#020617",
+                      color: "#ffffff",
+                      borderRadius: 999,
+                      padding: "5px 10px",
+                      fontSize: 12,
+                      fontWeight: 900,
+                    }}
+                  >
+                    {statusLabel(game.status)}
+                  </span>
+
+                  <span style={{ color: "#64748b", fontSize: 14 }}>
+                    {game.inning || game.detailedStatus || "試合前"}・{game.venue}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+                    gap: 14,
+                  }}
+                >
+                  <TeamBlock
+                    side="Away"
+                    name={game.away}
+                    score={game.awayScore}
+                    probable={game.awayProbable}
+                    metrics={game.awayMetrics}
+                    probability={prob.away}
+                  />
+
+                  <TeamBlock
+                    side="Home"
+                    name={game.home}
+                    score={game.homeScore}
+                    probable={game.homeProbable}
+                    metrics={game.homeMetrics}
+                    probability={prob.home}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    background: "#020617",
+                    color: "#ffffff",
+                    borderRadius: 20,
+                    padding: 16,
+                    marginTop: 14,
+                  }}
+                >
+                  <div style={{ fontWeight: 800, marginBottom: 8 }}>
+                    速報・注目ポイント
+                  </div>
+
+                  <ul style={{ color: "#cbd5e1", lineHeight: 1.8, margin: 0 }}>
+                    <li>試合状況：{game.detailedStatus}</li>
+                    <li>球場：{game.venue}</li>
+                    <li>
+                      スコア：{game.awayScore} - {game.homeScore}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            );
+          })}
+
+          <aside
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))",
+              gap: 14,
             }}
           >
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: 20,
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: 24,
+                padding: 18,
               }}
             >
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    color: "#94a3b8",
-                    marginBottom: 8,
-                  }}
-                >
-                  Away
-                </div>
-
-                <h2>{g.away}</h2>
-
-                <div style={{ marginBottom: 8 }}>
-                  予想先発: {g.awayProbable}
-                </div>
-
-                <div
-                  style={{
-                    background: "#1e293b",
-                    height: 10,
-                    borderRadius: 999,
-                    overflow: "hidden",
-                    marginBottom: 12,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${prob.away}%`,
-                      background: "#3b82f6",
-                      height: "100%",
-                    }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    marginBottom: 12,
-                    fontWeight: 700,
-                  }}
-                >
-                  勝率 {prob.away}%
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fit,minmax(120px,1fr))",
-                    gap: 10,
-                  }}
-                >
-                  <Metric
-                    label="OPS"
-                    value={g.awayMetrics.ops}
-                  />
-
-                  <Metric
-                    label="wOBA"
-                    value={g.awayMetrics.woba}
-                  />
-
-                  <Metric
-                    label="wRAA"
-                    value={g.awayMetrics.wraa}
-                  />
-
-                  <Metric
-                    label="wRC"
-                    value={g.awayMetrics.wrc}
-                  />
-
-                  <Metric
-                    label="FIP"
-                    value={g.awayMetrics.fip}
-                  />
-
-                  <Metric
-                    label="UZR"
-                    value={g.awayMetrics.uzr}
-                  />
-                </div>
-              </div>
-
-              <div style={{ flex: 1 }}>
-                <div
-                  style={{
-                    color: "#94a3b8",
-                    marginBottom: 8,
-                  }}
-                >
-                  Home
-                </div>
-
-                <h2>{g.home}</h2>
-
-                <div style={{ marginBottom: 8 }}>
-                  予想先発: {g.homeProbable}
-                </div>
-
-                <div
-                  style={{
-                    background: "#1e293b",
-                    height: 10,
-                    borderRadius: 999,
-                    overflow: "hidden",
-                    marginBottom: 12,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: `${prob.home}%`,
-                      background: "#22c55e",
-                      height: "100%",
-                    }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    marginBottom: 12,
-                    fontWeight: 700,
-                  }}
-                >
-                  勝率 {prob.home}%
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fit,minmax(120px,1fr))",
-                    gap: 10,
-                  }}
-                >
-                  <Metric
-                    label="OPS"
-                    value={g.homeMetrics.ops}
-                  />
-
-                  <Metric
-                    label="wOBA"
-                    value={g.homeMetrics.woba}
-                  />
-
-                  <Metric
-                    label="wRAA"
-                    value={g.homeMetrics.wraa}
-                  />
-
-                  <Metric
-                    label="wRC"
-                    value={g.homeMetrics.wrc}
-                  />
-
-                  <Metric
-                    label="FIP"
-                    value={g.homeMetrics.fip}
-                  />
-
-                  <Metric
-                    label="UZR"
-                    value={g.homeMetrics.uzr}
-                  />
-                </div>
-              </div>
+              <h3>データ状態</h3>
+              <p style={{ color: "#64748b", lineHeight: 1.7 }}>
+                試合データ：Vercel API → MLB Stats API
+                <br />
+                詳細指標：2026実データ
+                <br />
+                最終更新：{lastUpdated || "--"}
+              </p>
             </div>
 
             <div
               style={{
-                marginTop: 24,
-                background: "#020617",
-                borderRadius: 16,
-                padding: 16,
+                background: "#ffffff",
+                border: "1px solid #e2e8f0",
+                borderRadius: 24,
+                padding: 18,
               }}
             >
-              <div
-                style={{
-                  marginBottom: 8,
-                  fontWeight: 700,
-                }}
-              >
-                速報・注目ポイント
-              </div>
-
-              <div>ステータス: {g.status}</div>
-              <div>球場: {g.venue}</div>
-              <div>
-                スコア: {g.awayScore} - {g.homeScore}
-              </div>
+              <h3>指標の見方</h3>
+              <p style={{ color: "#64748b", lineHeight: 1.7 }}>
+                OPS / wOBA / wRAA / wRC は高いほど良く、
+                FIPは低いほど良く、UZRは高いほど守備貢献が高いです。
+              </p>
             </div>
-          </div>
-        );
-      })}
+          </aside>
+        </div>
+      </div>
     </main>
   );
 }
