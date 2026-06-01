@@ -685,11 +685,7 @@ export default function Page() {
                 >
                   <div style={{ fontWeight: 800, marginBottom: 8 }}>
                     速報・注目ポイント
-                    <li>
-  今季対戦成績：
-  {game.away} {game.headToHead?.awayWins ?? 0}勝 -
-  {game.home} {game.headToHead?.homeWins ?? 0}勝
-</li>
+                   
                   </div>
 
                   <ul style={{ color: "#cbd5e1", lineHeight: 1.8, margin: 0 }}>
@@ -698,6 +694,11 @@ export default function Page() {
                     <li>
                       スコア：{game.awayScore} - {game.homeScore}
                     </li>
+                     <li>
+  今季対戦成績：
+  {game.away} {game.headToHead?.awayWins ?? 0}勝 -
+  {game.home} {game.headToHead?.homeWins ?? 0}勝
+</li>
                   </ul>
                 </div>
               </div>
