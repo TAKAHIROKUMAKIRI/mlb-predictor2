@@ -394,13 +394,22 @@ const homeTeamId = g.teams?.home?.team?.id;
   awayMetrics: metricsFor(away),
   homeMetrics: metricsFor(home),
   awayPitcherMetrics,
-homePitcherMetrics,
-awayBullpen,
-homeBullpen,
-headToHead,
-debugHeadToHead: headToHead,
+  homePitcherMetrics,
+  awayBullpen,
+  homeBullpen,
+  headToHead: headToHead ?? {
+    awayWins: 0,
+    homeWins: 0,
+    totalGames: 0,
+    bonus: 0,
+  },
+  debugHeadToHead: headToHead ?? {
+    awayWins: 0,
+    homeWins: 0,
+    totalGames: 0,
+    bonus: 0,
+  },
 };
-}
 
 async function fetchScheduleByDate(date: string) {
   const url =
