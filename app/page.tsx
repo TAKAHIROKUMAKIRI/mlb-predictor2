@@ -2,6 +2,21 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+const PARK_FACTOR: Record<string, number> = {
+  "Coors Field": 8,
+  "Great American Ball Park": 4,
+  "Yankee Stadium": 3,
+  "Fenway Park": 2,
+
+  "Dodger Stadium": -2,
+  "T-Mobile Park": -2,
+  "Petco Park": -3,
+  "Oracle Park": -3,
+  "Citi Field": -1,
+
+  "Tropicana Field": -1,
+};
+
 function strength(teamMetrics: any, pitcherMetrics?: any) {
   if (
     !teamMetrics ||
