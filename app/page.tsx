@@ -80,22 +80,29 @@ function recentFormBonus(teamMetrics: any) {
 }
 
 function bullpenBonus(teamMetrics: any, bullpen?: any) {
-  if (!teamMetrics || teamMetrics.fip === null || teamMetrics.uzr === null) {
+  if (!teamMetrics || teamMetrics.fip === null) {
     return 0;
   }
 
-  const pitchingScore = (4.2 - teamMetrics.fip) * 2.5;
-  const defenseSupport = teamMetrics.uzr * 0.1;
+  return ...
+}
 
-  const fatiguePenalty =
-    bullpen && bullpen.fatigueScore
-      ? bullpen.fatigueScore * 0.8
-      : 0;
+function matchupBonus(game: any) {
+  if (!game.awayMetrics || !game.homeMetrics) return 0;
 
-  return Math.max(
-    -5,
-    Math.min(4, pitchingScore + defenseSupport - fatiguePenalty)
-  );
+  const awayScore =
+    game.awayMetrics.wrc * 0.03 +
+    game.awayMetrics.wraa * 0.04 +
+    game.awayMetrics.ops * 20;
+
+  const homeScore =
+    game.homeMetrics.wrc * 0.03 +
+    game.homeMetrics.wraa * 0.04 +
+    game.homeMetrics.ops * 20;
+
+  const diff = awayScore - homeScore;
+
+  return Math.max(-3, Math.min(3, diff * 0.25));
 }
 
 function winProbability(game: any) {
@@ -117,7 +124,8 @@ let away =
     game.awayPitcherMetrics
   ) +
   recentFormBonus(game.awayMetrics) +
-  bullpenBonus(game.awayMetrics, game.awayBullpen)
+  bullpenBonus(game.awayMetrics, game.awayBullpen) +
+  matchupBonus(game)
   -
   (
     strength(
