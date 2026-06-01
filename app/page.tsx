@@ -3,11 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 function strength(teamMetrics: any, pitcherMetrics?: any) {
-  if (
-    !teamMetrics ||
-    teamMetrics.ops === null ||
-    teamMetrics.ops === undefined
-  ) {
+  if (!teamMetrics || teamMetrics.ops === null || teamMetrics.ops === undefined) {
     return 0;
   }
 
@@ -18,13 +14,15 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
     teamMetrics.wrc * 0.015;
 
   const teamPitching = (4.2 - teamMetrics.fip) * 12;
+
   const defense = teamMetrics.uzr * 0.45;
 
   const starterPitching =
-    pitcherMetrics && pitcherMetrics.fip !== null
-      ? ((4.2 - pitcherMetrics.fip) * 14) +
-        ((1.3 - pitcherMetrics.whip) * 18) +
-        ((pitcherMetrics.k9 - 8.0) * 1.2)
+    pitcherMetrics && pitcherMetrics.era !== null
+      ? ((4.2 - pitcherMetrics.era) * 10) +
+        ((4.2 - pitcherMetrics.fip) * 8) +
+        ((1.3 - pitcherMetrics.whip) * 25) +
+        ((pitcherMetrics.k9 - 8.5) * 2)
       : 0;
 
   return offense + teamPitching + defense + starterPitching;
