@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 function strength(teamMetrics: any, pitcherMetrics?: any) {
-  if (!teamMetrics || teamMetrics.ops === null || teamMetrics.ops === undefined) {
+  if (
+    !teamMetrics ||
+    teamMetrics.ops === null ||
+    teamMetrics.ops === undefined
+  ) {
     return 0;
   }
 
@@ -17,12 +21,17 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
 
   const defense = teamMetrics.uzr * 0.45;
 
+  // 先発投手補正は強すぎると勝率が極端になるため、控えめに反映
   const starterPitching =
-    pitcherMetrics && pitcherMetrics.era !== null
-      ? ((4.2 - pitcherMetrics.era) * 10) +
-        ((4.2 - pitcherMetrics.fip) * 8) +
-        ((1.3 - pitcherMetrics.whip) * 25) +
-        ((pitcherMetrics.k9 - 8.5) * 2)
+    pitcherMetrics &&
+    pitcherMetrics.era !== null &&
+    pitcherMetrics.fip !== null &&
+    pitcherMetrics.whip !== null &&
+    pitcherMetrics.k9 !== null
+      ? ((4.2 - pitcherMetrics.era) * 4) +
+        ((4.2 - pitcherMetrics.fip) * 3) +
+        ((1.3 - pitcherMetrics.whip) * 8) +
+        ((pitcherMetrics.k9 - 8.5) * 1)
       : 0;
 
   return offense + teamPitching + defense + starterPitching;
