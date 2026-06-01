@@ -217,6 +217,7 @@ function TeamBlock({
   probable,
   metrics,
   pitcherMetrics,
+  bullpen,
   probability,
 }: any) {
   return (
@@ -328,6 +329,21 @@ function TeamBlock({
   <Metric label="WHIP" value={pitcherMetrics?.whip} type="fip" />
   <Metric label="K/9" value={pitcherMetrics?.k9} type="wrc" />
 </div>
+
+<div
+  style={{
+    marginTop: 10,
+    color: "#64748b",
+    fontSize: 12,
+    lineHeight: 1.6,
+  }}
+>
+  ブルペン直近3日：
+  登板 {bullpen?.appearances ?? 0}人 /
+  投球数 {bullpen?.pitches ?? 0}球 /
+  疲労 {bullpen?.fatigueScore ?? 0}
+</div>
+      
     </div>
   );
 }
@@ -633,6 +649,7 @@ export default function Page() {
   probable={game.awayProbable}
   metrics={game.awayMetrics}
   pitcherMetrics={game.awayPitcherMetrics}
+  bullpen={game.awayBullpen}
   probability={prob.away}
 />
 
@@ -643,6 +660,7 @@ export default function Page() {
   probable={game.homeProbable}
   metrics={game.homeMetrics}
   pitcherMetrics={game.homePitcherMetrics}
+  bullpen={game.homeBullpen}
   probability={prob.home}
 />
                 </div>
