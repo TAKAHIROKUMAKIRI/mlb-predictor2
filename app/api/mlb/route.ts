@@ -196,6 +196,47 @@ async function fetchPitcherMetrics(playerId?: number) {
     };
   }
 
+  try {
+    const season = currentSeason();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=season&group=pitching&season=${season}`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("Pitcher stats fetch failed");
+
+    const data = await res.json();
+
+    const stat = data.stats?.[0]?.splits?.[0]?.stat || null;
+
+    if (!stat) {
+      return {
+        era: null,
+        fip: null,
+        whip: null,
+        k9: null,
+      };
+    }
+
+    return {
+      era: stat.era ? Number(stat.era) : null,
+      fip: calcFip(stat),
+      whip: stat.whip ? Number(stat.whip) : null,
+      k9: calcK9(stat),
+    };
+  } catch (e) {
+    return {
+      era: null,
+      fip: null,
+      whip: null,
+      k9: null,
+    };
+  }
+}
+
 async function fetchHeadToHead(
   awayTeamId?: number,
   homeTeamId?: number
@@ -210,7 +251,7 @@ async function fetchHeadToHead(
   }
 
   try {
-    const season = new Date().getFullYear();
+    const season = currentSeason();
 
     const url =
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=${season}&teamId=${awayTeamId}&opponentId=${homeTeamId}&gameType=R`;
@@ -244,7 +285,6 @@ async function fetchHeadToHead(
     }
 
     const totalGames = awayWins + homeWins;
-
     const diff = awayWins - homeWins;
 
     return {
