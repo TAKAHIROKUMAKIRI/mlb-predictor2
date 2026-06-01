@@ -2,17 +2,32 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-function strength(m: any) {
-  if (!m || m.ops === null || m.ops === undefined) return 0;
+function strength(teamMetrics: any, pitcherMetrics?: any) {
+  if (
+    !teamMetrics ||
+    teamMetrics.ops === null ||
+    teamMetrics.ops === undefined
+  ) {
+    return 0;
+  }
 
-  return (
-    ((m.ops - 0.7) * 170) +
-    ((m.woba - 0.315) * 260) +
-    m.wraa * 0.18 +
-    m.wrc * 0.015 +
-    ((4.2 - m.fip) * 12) +
-    m.uzr * 0.45
-  );
+  const offense =
+    ((teamMetrics.ops - 0.7) * 170) +
+    ((teamMetrics.woba - 0.315) * 260) +
+    teamMetrics.wraa * 0.18 +
+    teamMetrics.wrc * 0.015;
+
+  const teamPitching = (4.2 - teamMetrics.fip) * 12;
+  const defense = teamMetrics.uzr * 0.45;
+
+  const starterPitching =
+    pitcherMetrics && pitcherMetrics.fip !== null
+      ? ((4.2 - pitcherMetrics.fip) * 14) +
+        ((1.3 - pitcherMetrics.whip) * 18) +
+        ((pitcherMetrics.k9 - 8.0) * 1.2)
+      : 0;
+
+  return offense + teamPitching + defense + starterPitching;
 }
 
 function winProbability(game: any) {
@@ -26,8 +41,8 @@ function winProbability(game: any) {
 
   let away =
     50 +
-    strength(game.awayMetrics) -
-    (strength(game.homeMetrics) + 2.5);
+    strength(game.awayMetrics, game.awayPitcherMetrics) -
+(strength(game.homeMetrics, game.homePitcherMetrics) + 2.5);
 
   if (game.status === "LIVE") {
     away += ((game.awayScore || 0) - (game.homeScore || 0)) * 16;
@@ -114,6 +129,7 @@ function TeamBlock({
   score,
   probable,
   metrics,
+  pitcherMetrics,
   probability,
 }: any) {
   return (
@@ -212,6 +228,19 @@ function TeamBlock({
         <Metric label="FIP" value={metrics?.fip} type="fip" />
         <Metric label="UZR" value={metrics?.uzr} type="uzr" />
       </div>
+      <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: 8,
+    marginTop: 10,
+  }}
+>
+  <Metric label="SP ERA" value={pitcherMetrics?.era} type="fip" />
+  <Metric label="SP FIP" value={pitcherMetrics?.fip} type="fip" />
+  <Metric label="WHIP" value={pitcherMetrics?.whip} type="fip" />
+  <Metric label="K/9" value={pitcherMetrics?.k9} type="wrc" />
+</div>
     </div>
   );
 }
@@ -511,22 +540,24 @@ export default function Page() {
                   }}
                 >
                   <TeamBlock
-                    side="Away"
-                    name={game.away}
-                    score={game.awayScore}
-                    probable={game.awayProbable}
-                    metrics={game.awayMetrics}
-                    probability={prob.away}
-                  />
+  side="Away"
+  name={game.away}
+  score={game.awayScore}
+  probable={game.awayProbable}
+  metrics={game.awayMetrics}
+  pitcherMetrics={game.awayPitcherMetrics}
+  probability={prob.away}
+/>
 
                   <TeamBlock
-                    side="Home"
-                    name={game.home}
-                    score={game.homeScore}
-                    probable={game.homeProbable}
-                    metrics={game.homeMetrics}
-                    probability={prob.home}
-                  />
+  side="Home"
+  name={game.home}
+  score={game.homeScore}
+  probable={game.homeProbable}
+  metrics={game.homeMetrics}
+  pitcherMetrics={game.homePitcherMetrics}
+  probability={prob.home}
+/>
                 </div>
 
                 <div
