@@ -378,13 +378,6 @@ const homeTeamId = g.teams?.home?.team?.id;
   fetchHeadToHead(awayTeamId, homeTeamId),
 ]);
 
-console.log(
-  "HEADTOHEAD",
-  awayTeamId,
-  homeTeamId,
-  headToHead
-);
-
   return {
   id: g.gamePk,
   date,
@@ -401,10 +394,11 @@ console.log(
   awayMetrics: metricsFor(away),
   homeMetrics: metricsFor(home),
   awayPitcherMetrics,
-  homePitcherMetrics,
-  awayBullpen,
-  homeBullpen,
-  headToHead,
+homePitcherMetrics,
+awayBullpen,
+homeBullpen,
+headToHead,
+debugHeadToHead: headToHead,
 };
 }
 
