@@ -35,26 +35,6 @@ const TEAM_METRICS: Record<string, any> = {
   "Washington Nationals": { ops: 0.684, woba: 0.298, wraa: -18.4, wrc: 88, fip: 4.42, uzr: -3.3 },
 };
 
-const PITCHER_METRICS: Record<string, any> = {
-  "Kyle Bradish": { era: 3.12, fip: 3.55, whip: 1.12, k9: 9.0 },
-  "Spencer Miles": { era: 4.80, fip: 4.65, whip: 1.36, k9: 7.4 },
-  "Zack Littell": { era: 3.95, fip: 4.10, whip: 1.28, k9: 7.1 },
-  "Griffin Canning": { era: 4.35, fip: 4.50, whip: 1.31, k9: 8.0 },
-  "Dylan Cease": { era: 3.55, fip: 3.70, whip: 1.15, k9: 10.6 },
-  "MacKenzie Gore": { era: 3.85, fip: 3.95, whip: 1.27, k9: 9.7 },
-  "Ranger Suárez": { era: 3.20, fip: 3.65, whip: 1.18, k9: 8.2 },
-  "Ranger Suarez": { era: 3.20, fip: 3.65, whip: 1.18, k9: 8.2 },
-  "Jack Flaherty": { era: 3.75, fip: 3.90, whip: 1.23, k9: 9.1 },
-  "Tarik Skubal": { era: 2.85, fip: 3.05, whip: 1.02, k9: 10.4 },
-  "Zac Gallen": { era: 3.40, fip: 3.75, whip: 1.18, k9: 9.0 },
-  "Logan Gilbert": { era: 3.35, fip: 3.60, whip: 1.08, k9: 8.9 },
-  "Corbin Burnes": { era: 3.20, fip: 3.45, whip: 1.10, k9: 9.2 },
-  "Gerrit Cole": { era: 3.10, fip: 3.50, whip: 1.08, k9: 9.6 },
-  "Paul Skenes": { era: 2.75, fip: 2.95, whip: 1.00, k9: 11.2 },
-  "Cristopher Sánchez": { era: 3.25, fip: 3.55, whip: 1.20, k9: 8.1 },
-  "Cristopher Sanchez": { era: 3.25, fip: 3.55, whip: 1.20, k9: 8.1 },
-};
-
 function metricsFor(team: string) {
   return TEAM_METRICS[team] || {
     ops: null,
@@ -66,18 +46,8 @@ function metricsFor(team: string) {
   };
 }
 
-function pitcherMetricsFor(name: string) {
-  return PITCHER_METRICS[name] || {
-    era: null,
-    fip: null,
-    whip: null,
-    k9: null,
-  };
-}
-
 function easternDate(offset = 0) {
   const now = new Date();
-
   const et = new Date(
     now.toLocaleString("en-US", {
       timeZone: "America/New_York",
@@ -93,15 +63,109 @@ function easternDate(offset = 0) {
   return `${y}-${m}-${d}`;
 }
 
-function normalizeGame(g: any, date: string) {
+function currentSeason() {
+  return new Date().getFullYear();
+}
+
+function parseInnings(ip: any) {
+  if (!ip) return 0;
+
+  const raw = String(ip);
+
+  if (!raw.includes(".")) {
+    return Number(raw) || 0;
+  }
+
+  const [whole, fraction] = raw.split(".");
+  const outs = Number(fraction) || 0;
+
+  return (Number(whole) || 0) + outs / 3;
+}
+
+function calcFip(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+
+  if (!ip) return null;
+
+  const hr = Number(stat?.homeRuns || 0);
+  const bb = Number(stat?.baseOnBalls || 0);
+  const hbp = Number(stat?.hitBatsmen || 0);
+  const k = Number(stat?.strikeOuts || 0);
+
+  const fipConstant = 3.1;
+
+  return Number(
+    (((13 * hr + 3 * (bb + hbp) - 2 * k) / ip) + fipConstant).toFixed(2)
+  );
+}
+
+function calcK9(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+  const k = Number(stat?.strikeOuts || 0);
+
+  if (!ip) return null;
+
+  return Number(((k * 9) / ip).toFixed(1));
+}
+
+async function fetchPitcherMetrics(playerId?: number) {
+  if (!playerId) {
+    return {
+      era: null,
+      fip: null,
+      whip: null,
+      k9: null,
+    };
+  }
+
+  try {
+    const season = currentSeason();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=season&group=pitching&season=${season}`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("Pitcher stats fetch failed");
+
+    const data = await res.json();
+
+    const stat =
+      data.stats?.[0]?.splits?.[0]?.stat || null;
+
+    if (!stat) {
+      return {
+        era: null,
+        fip: null,
+        whip: null,
+        k9: null,
+      };
+    }
+
+    return {
+      era: stat.era ? Number(stat.era) : null,
+      fip: calcFip(stat),
+      whip: stat.whip ? Number(stat.whip) : null,
+      k9: calcK9(stat),
+    };
+  } catch (e) {
+    return {
+      era: null,
+      fip: null,
+      whip: null,
+      k9: null,
+    };
+  }
+}
+
+async function normalizeGame(g: any, date: string) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
 
-  const awayProbable =
-    g.teams?.away?.probablePitcher?.fullName || "未発表";
-
-  const homeProbable =
-    g.teams?.home?.probablePitcher?.fullName || "未発表";
+  const awayPitcher = g.teams?.away?.probablePitcher;
+  const homePitcher = g.teams?.home?.probablePitcher;
 
   const abstract = g.status?.abstractGameState || "Preview";
 
@@ -111,6 +175,14 @@ function normalizeGame(g: any, date: string) {
       : abstract === "Final"
         ? "FINAL"
         : "SCHEDULED";
+
+  const [
+    awayPitcherMetrics,
+    homePitcherMetrics,
+  ] = await Promise.all([
+    fetchPitcherMetrics(awayPitcher?.id),
+    fetchPitcherMetrics(homePitcher?.id),
+  ]);
 
   return {
     id: g.gamePk,
@@ -123,12 +195,12 @@ function normalizeGame(g: any, date: string) {
     detailedStatus: g.status?.detailedState || "",
     inning: g.linescore?.currentInningOrdinal || "",
     venue: g.venue?.name || "",
-    awayProbable,
-    homeProbable,
+    awayProbable: awayPitcher?.fullName || "未発表",
+    homeProbable: homePitcher?.fullName || "未発表",
     awayMetrics: metricsFor(away),
     homeMetrics: metricsFor(home),
-    awayPitcherMetrics: pitcherMetricsFor(awayProbable),
-    homePitcherMetrics: pitcherMetricsFor(homeProbable),
+    awayPitcherMetrics,
+    homePitcherMetrics,
   };
 }
 
@@ -146,10 +218,12 @@ async function fetchScheduleByDate(date: string) {
 
   const data = await res.json();
 
-  return (
-    data.dates?.[0]?.games?.map((g: any) =>
+  const rawGames = data.dates?.[0]?.games || [];
+
+  return Promise.all(
+    rawGames.map((g: any) =>
       normalizeGame(g, data.dates?.[0]?.date || date)
-    ) || []
+    )
   );
 }
 
