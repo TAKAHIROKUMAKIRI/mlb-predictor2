@@ -196,6 +196,73 @@ async function fetchPitcherMetrics(playerId?: number) {
     };
   }
 
+async function fetchHeadToHead(
+  awayTeamId?: number,
+  homeTeamId?: number
+) {
+  if (!awayTeamId || !homeTeamId) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const season = new Date().getFullYear();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=${season}&teamId=${awayTeamId}&opponentId=${homeTeamId}&gameType=R`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("head to head fetch failed");
+
+    const data = await res.json();
+
+    let awayWins = 0;
+    let homeWins = 0;
+
+    for (const date of data.dates || []) {
+      for (const game of date.games || []) {
+        if (game.status?.abstractGameState !== "Final") continue;
+
+        const awayScore = game.teams?.away?.score ?? 0;
+        const homeScore = game.teams?.home?.score ?? 0;
+        const gameAwayId = game.teams?.away?.team?.id;
+        const gameHomeId = game.teams?.home?.team?.id;
+
+        const winnerId =
+          awayScore > homeScore ? gameAwayId : gameHomeId;
+
+        if (winnerId === awayTeamId) awayWins += 1;
+        if (winnerId === homeTeamId) homeWins += 1;
+      }
+    }
+
+    const totalGames = awayWins + homeWins;
+
+    const diff = awayWins - homeWins;
+
+    return {
+      awayWins,
+      homeWins,
+      totalGames,
+      bonus: Math.max(-3, Math.min(3, diff * 0.8)),
+    };
+  } catch (e) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
+}
+  
   try {
     const season = currentSeason();
 
@@ -262,11 +329,13 @@ async function normalizeGame(g: any, date: string) {
   homePitcherMetrics,
   awayBullpen,
   homeBullpen,
+  headToHead,
 ] = await Promise.all([
   fetchPitcherMetrics(awayPitcher?.id),
   fetchPitcherMetrics(homePitcher?.id),
   fetchBullpenFatigue(awayTeamId),
   fetchBullpenFatigue(homeTeamId),
+  fetchHeadToHead(awayTeamId, homeTeamId),
 ]);
 
   return {
@@ -288,6 +357,7 @@ awayPitcherMetrics,
 homePitcherMetrics,
 awayBullpen,
 homeBullpen,
+headToHead,
   };
 }
 
