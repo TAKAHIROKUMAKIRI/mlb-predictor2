@@ -69,6 +69,16 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return offense + teamPitching + defense + starterPitching;
 }
 
+function recentFormBonus(teamMetrics: any) {
+  if (!teamMetrics) return 0;
+
+  const score =
+    (teamMetrics.wrc - 100) * 0.15 +
+    teamMetrics.wraa * 0.08;
+
+  return Math.max(-3, Math.min(3, score));
+}
+
 function winProbability(game: any) {
   if (game.status === "FINAL") {
     if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
@@ -86,12 +96,16 @@ let away =
   strength(
     game.awayMetrics,
     game.awayPitcherMetrics
-  ) -
+  ) +
+  recentFormBonus(game.awayMetrics)
+  -
   (
     strength(
-  game.homeMetrics,
-  game.homePitcherMetrics
-) + homeAdvantageFor(game.venue)
+      game.homeMetrics,
+      game.homePitcherMetrics
+    ) +
+    recentFormBonus(game.homeMetrics) +
+    homeAdvantageFor(game.venue)
   );
 
 away -= parkAdjustment;
