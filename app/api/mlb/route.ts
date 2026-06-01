@@ -46,6 +46,84 @@ function metricsFor(team: string) {
   };
 }
 
+async function fetchBullpenFatigue(teamId?: number) {
+  if (!teamId) {
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
+  }
+
+  try {
+    const today = new Date();
+    const end = today.toISOString().split("T")[0];
+
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 3);
+    const start = startDate.toISOString().split("T")[0];
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}&startDate=${start}&endDate=${end}&hydrate=boxscore`;
+
+    const res = await fetch(url, { cache: "no-store" });
+
+    if (!res.ok) throw new Error("bullpen fetch failed");
+
+    const data = await res.json();
+
+    let appearances = 0;
+    let pitches = 0;
+
+    for (const date of data.dates || []) {
+      for (const game of date.games || []) {
+        const boxscore = game.boxscore;
+        const teams = boxscore?.teams;
+
+        const side =
+          teams?.away?.team?.id === teamId
+            ? teams.away
+            : teams?.home?.team?.id === teamId
+              ? teams.home
+              : null;
+
+        if (!side?.players) continue;
+
+        for (const player of Object.values(side.players) as any[]) {
+          const pitching = player?.stats?.pitching;
+
+          if (!pitching) continue;
+
+          const gamesPitched = Number(pitching.gamesPlayed || 0);
+          const numberOfPitches = Number(pitching.numberOfPitches || 0);
+
+          if (gamesPitched > 0) {
+            appearances += 1;
+            pitches += numberOfPitches;
+          }
+        }
+      }
+    }
+
+    const fatigueScore = Math.min(
+      6,
+      appearances * 0.4 + pitches * 0.015
+    );
+
+    return {
+      appearances,
+      pitches,
+      fatigueScore: Number(fatigueScore.toFixed(1)),
+    };
+  } catch (e) {
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
+  }
+}
+
 function easternDate(offset = 0) {
   const now = new Date();
   const et = new Date(
@@ -164,6 +242,9 @@ async function normalizeGame(g: any, date: string) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
 
+  const awayTeamId = g.teams?.away?.team?.id;
+　const homeTeamId = g.teams?.home?.team?.id;
+  
   const awayPitcher = g.teams?.away?.probablePitcher;
   const homePitcher = g.teams?.home?.probablePitcher;
 
@@ -177,12 +258,16 @@ async function normalizeGame(g: any, date: string) {
         : "SCHEDULED";
 
   const [
-    awayPitcherMetrics,
-    homePitcherMetrics,
-  ] = await Promise.all([
-    fetchPitcherMetrics(awayPitcher?.id),
-    fetchPitcherMetrics(homePitcher?.id),
-  ]);
+  awayPitcherMetrics,
+  homePitcherMetrics,
+  awayBullpen,
+  homeBullpen,
+] = await Promise.all([
+  fetchPitcherMetrics(awayPitcher?.id),
+  fetchPitcherMetrics(homePitcher?.id),
+  fetchBullpenFatigue(awayTeamId),
+  fetchBullpenFatigue(homeTeamId),
+]);
 
   return {
     id: g.gamePk,
@@ -198,9 +283,11 @@ async function normalizeGame(g: any, date: string) {
     awayProbable: awayPitcher?.fullName || "未発表",
     homeProbable: homePitcher?.fullName || "未発表",
     awayMetrics: metricsFor(away),
-    homeMetrics: metricsFor(home),
-    awayPitcherMetrics,
-    homePitcherMetrics,
+homeMetrics: metricsFor(home),
+awayPitcherMetrics,
+homePitcherMetrics,
+awayBullpen,
+homeBullpen,
   };
 }
 
