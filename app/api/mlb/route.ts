@@ -378,6 +378,13 @@ const homeTeamId = g.teams?.home?.team?.id;
   fetchHeadToHead(awayTeamId, homeTeamId),
 ]);
 
+console.log(
+  "HEADTOHEAD",
+  awayTeamId,
+  homeTeamId,
+  headToHead
+);
+
   return {
   id: g.gamePk,
   date,
