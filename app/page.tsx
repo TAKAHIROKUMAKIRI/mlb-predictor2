@@ -61,7 +61,10 @@ function winProbability(game: any) {
       : { away: 0, home: 100 };
   }
 
-  let away =
+  const parkAdjustment =
+  PARK_FACTOR[game.venue] || 0;
+
+let away =
   50 +
   strength(
     game.awayMetrics,
@@ -73,6 +76,8 @@ function winProbability(game: any) {
       game.homePitcherMetrics
     ) + 2.5
   );
+
+away -= parkAdjustment;
 
   if (game.status === "LIVE") {
     away += ((game.awayScore || 0) - (game.homeScore || 0)) * 16;
