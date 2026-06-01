@@ -17,6 +17,23 @@ const PARK_FACTOR: Record<string, number> = {
   "Tropicana Field": -1,
 };
 
+const HOME_ADVANTAGE: Record<string, number> = {
+  "Coors Field": 3.5,
+  "Fenway Park": 3.0,
+  "Yankee Stadium": 3.0,
+  "Dodger Stadium": 3.0,
+  "T-Mobile Park": 3.0,
+  "Petco Park": 3.0,
+
+  "Tropicana Field": 2.0,
+  "Oakland Coliseum": 2.0,
+  "loanDepot park": 2.0,
+};
+
+function homeAdvantageFor(venue: string) {
+  return HOME_ADVANTAGE[venue] ?? 2.5;
+}
+
 function strength(teamMetrics: any, pitcherMetrics?: any) {
   if (
     !teamMetrics ||
@@ -72,9 +89,9 @@ let away =
   ) -
   (
     strength(
-      game.homeMetrics,
-      game.homePitcherMetrics
-    ) + 2.5
+  game.homeMetrics,
+  game.homePitcherMetrics
+) + homeAdvantageFor(game.venue)
   );
 
 away -= parkAdjustment;
