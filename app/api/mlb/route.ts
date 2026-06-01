@@ -35,6 +35,26 @@ const TEAM_METRICS: Record<string, any> = {
   "Washington Nationals": { ops: 0.684, woba: 0.298, wraa: -18.4, wrc: 88, fip: 4.42, uzr: -3.3 },
 };
 
+const PITCHER_METRICS: Record<string, any> = {
+  "Kyle Bradish": { era: 3.12, fip: 3.55, whip: 1.12, k9: 9.0 },
+  "Spencer Miles": { era: 4.80, fip: 4.65, whip: 1.36, k9: 7.4 },
+  "Zack Littell": { era: 3.95, fip: 4.10, whip: 1.28, k9: 7.1 },
+  "Griffin Canning": { era: 4.35, fip: 4.50, whip: 1.31, k9: 8.0 },
+  "Dylan Cease": { era: 3.55, fip: 3.70, whip: 1.15, k9: 10.6 },
+  "MacKenzie Gore": { era: 3.85, fip: 3.95, whip: 1.27, k9: 9.7 },
+  "Ranger Suárez": { era: 3.20, fip: 3.65, whip: 1.18, k9: 8.2 },
+  "Ranger Suarez": { era: 3.20, fip: 3.65, whip: 1.18, k9: 8.2 },
+  "Jack Flaherty": { era: 3.75, fip: 3.90, whip: 1.23, k9: 9.1 },
+  "Tarik Skubal": { era: 2.85, fip: 3.05, whip: 1.02, k9: 10.4 },
+  "Zac Gallen": { era: 3.40, fip: 3.75, whip: 1.18, k9: 9.0 },
+  "Logan Gilbert": { era: 3.35, fip: 3.60, whip: 1.08, k9: 8.9 },
+  "Corbin Burnes": { era: 3.20, fip: 3.45, whip: 1.10, k9: 9.2 },
+  "Gerrit Cole": { era: 3.10, fip: 3.50, whip: 1.08, k9: 9.6 },
+  "Paul Skenes": { era: 2.75, fip: 2.95, whip: 1.00, k9: 11.2 },
+  "Cristopher Sánchez": { era: 3.25, fip: 3.55, whip: 1.20, k9: 8.1 },
+  "Cristopher Sanchez": { era: 3.25, fip: 3.55, whip: 1.20, k9: 8.1 },
+};
+
 function metricsFor(team: string) {
   return TEAM_METRICS[team] || {
     ops: null,
@@ -43,6 +63,15 @@ function metricsFor(team: string) {
     wrc: null,
     fip: null,
     uzr: null,
+  };
+}
+
+function pitcherMetricsFor(name: string) {
+  return PITCHER_METRICS[name] || {
+    era: null,
+    fip: null,
+    whip: null,
+    k9: null,
   };
 }
 
@@ -68,6 +97,12 @@ function normalizeGame(g: any, date: string) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
 
+  const awayProbable =
+    g.teams?.away?.probablePitcher?.fullName || "未発表";
+
+  const homeProbable =
+    g.teams?.home?.probablePitcher?.fullName || "未発表";
+
   const abstract = g.status?.abstractGameState || "Preview";
 
   const status =
@@ -88,12 +123,12 @@ function normalizeGame(g: any, date: string) {
     detailedStatus: g.status?.detailedState || "",
     inning: g.linescore?.currentInningOrdinal || "",
     venue: g.venue?.name || "",
-    awayProbable:
-      g.teams?.away?.probablePitcher?.fullName || "未発表",
-    homeProbable:
-      g.teams?.home?.probablePitcher?.fullName || "未発表",
+    awayProbable,
+    homeProbable,
     awayMetrics: metricsFor(away),
     homeMetrics: metricsFor(home),
+    awayPitcherMetrics: pitcherMetricsFor(awayProbable),
+    homePitcherMetrics: pitcherMetricsFor(homeProbable),
   };
 }
 
