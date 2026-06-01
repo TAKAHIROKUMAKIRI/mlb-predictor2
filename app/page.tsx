@@ -79,6 +79,20 @@ function recentFormBonus(teamMetrics: any) {
   return Math.max(-3, Math.min(3, score));
 }
 
+function bullpenBonus(teamMetrics: any) {
+  if (!teamMetrics || teamMetrics.fip === null || teamMetrics.uzr === null) {
+    return 0;
+  }
+
+  // チームFIPをブルペン含む投手力の proxy として使用
+  const pitchingScore = (4.2 - teamMetrics.fip) * 3;
+
+  // 守備が良いチームは終盤の失点リスクも下がるため軽く加点
+  const defenseSupport = teamMetrics.uzr * 0.12;
+
+  return Math.max(-3, Math.min(3, pitchingScore + defenseSupport));
+}
+
 function winProbability(game: any) {
   if (game.status === "FINAL") {
     if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
@@ -97,7 +111,8 @@ let away =
     game.awayMetrics,
     game.awayPitcherMetrics
   ) +
-  recentFormBonus(game.awayMetrics)
+  recentFormBonus(game.awayMetrics) +
+  bullpenBonus(game.awayMetrics)
   -
   (
     strength(
@@ -105,6 +120,7 @@ let away =
       game.homePitcherMetrics
     ) +
     recentFormBonus(game.homeMetrics) +
+    bullpenBonus(game.homeMetrics) +
     homeAdvantageFor(game.venue)
   );
 
