@@ -38,9 +38,17 @@ function winProbability(game: any) {
   }
 
   let away =
-    50 +
-    strength(game.awayMetrics, game.awayPitcherMetrics) -
-(strength(game.homeMetrics, game.homePitcherMetrics) + 2.5);
+  50 +
+  strength(
+    game.awayMetrics,
+    game.awayPitcherMetrics
+  ) -
+  (
+    strength(
+      game.homeMetrics,
+      game.homePitcherMetrics
+    ) + 2.5
+  );
 
   if (game.status === "LIVE") {
     away += ((game.awayScore || 0) - (game.homeScore || 0)) * 16;
