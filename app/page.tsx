@@ -772,6 +772,7 @@ export default function Page() {
           {filtered.map((game) => {
             const prob = winProbability(game);
 const reasons = predictionReasons(game);
+          const confidence = confidenceLabel(prob);
 
 return (
               <div
@@ -866,6 +867,8 @@ return (
     スコア：{game.awayScore} - {game.homeScore}
   </li>
 
+                    <li>信頼度：{confidence}</li>
+                    
   <li>
     今季対戦成績：
     {game.away} {game.headToHead?.awayWins ?? 0}勝 -
