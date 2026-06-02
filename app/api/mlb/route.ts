@@ -210,6 +210,10 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
   }
 }
 
+function currentSeason() {
+  return new Date().getFullYear();
+}
+
 async function fetchPitcherMetrics(playerId?: number) {
   if (!playerId) {
     return {
