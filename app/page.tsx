@@ -432,6 +432,19 @@ function TeamBlock({
   投球数 {bullpen?.pitches ?? 0}球 /
   疲労 {bullpen?.fatigueScore ?? 0}
 </div>
+
+<div
+  style={{
+    fontSize: 12,
+    color: "#64748b",
+    marginTop: 6,
+  }}
+>
+  直近5試合：
+  {game.awayRecentForm?.wins ?? 0}勝
+  -
+  {game.awayRecentForm?.losses ?? 0}敗
+</div>      
       
     </div>
   );
