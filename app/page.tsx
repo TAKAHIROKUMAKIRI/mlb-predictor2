@@ -127,7 +127,7 @@ function winProbability(game: any) {
   let away =
     50 +
     (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
-    (recentFormBonus(game.awayMetrics) || 0) +
+    (recentFormBonus(game.awayRecentForm) || 0) +
     (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
     (matchupBonus(game) || 0) +
     (game.headToHead?.bonus || 0) -
