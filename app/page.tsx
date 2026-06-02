@@ -286,6 +286,7 @@ function TeamBlock({
   metrics,
   pitcherMetrics,
   bullpen,
+  recentForm,
   probability,
 }: any) {
   return (
@@ -752,6 +753,7 @@ export default function Page() {
   metrics={game.awayMetrics}
   pitcherMetrics={game.awayPitcherMetrics}
   bullpen={game.awayBullpen}
+  recentForm={game.awayRecentForm}
   probability={prob.away}
 />
 
@@ -763,6 +765,7 @@ export default function Page() {
   metrics={game.homeMetrics}
   pitcherMetrics={game.homePitcherMetrics}
   bullpen={game.homeBullpen}
+  recentForm={game.homeRecentForm}
   probability={prob.home}
 />
                 </div>
