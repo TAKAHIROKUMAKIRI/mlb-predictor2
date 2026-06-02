@@ -415,8 +415,8 @@ fetchPitcherMetrics(homePitcher?.id),
 fetchBullpenFatigue(awayTeamId),
 fetchBullpenFatigue(homeTeamId),
 fetchHeadToHead(awayTeamId, homeTeamId),
-fetchRecentForm(awayTeamId),
-fetchRecentForm(homeTeamId),
+fetchRecentForm(awayTeamId, date),
+fetchRecentForm(homeTeamId, date),
 ]);
 
   return {
