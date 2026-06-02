@@ -110,6 +110,59 @@ function matchupBonus(game: any) {
   return Math.max(-3, Math.min(3, diff * 0.25));
 }
 
+function predictionReasons(game: any) {
+  const reasons: string[] = [];
+
+  const awaySP = game.awayPitcherMetrics;
+  const homeSP = game.homePitcherMetrics;
+
+  if (awaySP?.era != null && homeSP?.era != null) {
+    if (awaySP.era + 0.5 < homeSP.era) {
+      reasons.push(`${game.away}：先発ERAで優位`);
+    } else if (homeSP.era + 0.5 < awaySP.era) {
+      reasons.push(`${game.home}：先発ERAで優位`);
+    }
+  }
+
+  if (awaySP?.fip != null && homeSP?.fip != null) {
+    if (awaySP.fip + 0.4 < homeSP.fip) {
+      reasons.push(`${game.away}：先発FIPで優位`);
+    } else if (homeSP.fip + 0.4 < awaySP.fip) {
+      reasons.push(`${game.home}：先発FIPで優位`);
+    }
+  }
+
+  if (game.awayRecentForm?.wins > game.homeRecentForm?.wins) {
+    reasons.push(`${game.away}：直近5試合の勝数で優位`);
+  } else if (game.homeRecentForm?.wins > game.awayRecentForm?.wins) {
+    reasons.push(`${game.home}：直近5試合の勝数で優位`);
+  }
+
+  if (game.awayMetrics?.wrc > game.homeMetrics?.wrc + 8) {
+    reasons.push(`${game.away}：打線指標wRCで優位`);
+  } else if (game.homeMetrics?.wrc > game.awayMetrics?.wrc + 8) {
+    reasons.push(`${game.home}：打線指標wRCで優位`);
+  }
+
+  if (game.awayMetrics?.uzr > game.homeMetrics?.uzr + 3) {
+    reasons.push(`${game.away}：守備UZRで優位`);
+  } else if (game.homeMetrics?.uzr > game.awayMetrics?.uzr + 3) {
+    reasons.push(`${game.home}：守備UZRで優位`);
+  }
+
+  if (game.headToHead?.awayWins > game.headToHead?.homeWins) {
+    reasons.push(`${game.away}：今季対戦成績で優位`);
+  } else if (game.headToHead?.homeWins > game.headToHead?.awayWins) {
+    reasons.push(`${game.home}：今季対戦成績で優位`);
+  }
+
+  if (reasons.length === 0) {
+    reasons.push("両チームの指標差が小さく、接戦寄り");
+  }
+
+  return reasons.slice(0, 5);
+}
+
 function winProbability(game: any) {
   if (game.status === "FINAL") {
     if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
