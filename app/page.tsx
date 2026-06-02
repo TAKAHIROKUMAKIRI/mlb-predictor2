@@ -90,8 +90,6 @@ function bullpenBonus(teamMetrics: any, bullpen?: any) {
   return Math.max(-10, -(fatigue * 0.8));
 }
 
-}
-
 function matchupBonus(game: any) {
   const a = game.awayMetrics;
   const h = game.homeMetrics;
