@@ -165,6 +165,14 @@ function winProbability(game: any) {
     }
   }
 
+  console.log(
+  "WINDEBUG",
+  game.away,
+  away,
+  game.headToHead,
+  game.venue
+);
+  
   away = Math.round(Math.max(3, Math.min(97, away)));
 
   return {
