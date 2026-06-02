@@ -113,37 +113,59 @@ function winProbability(game: any) {
       : { away: 0, home: 100 };
   }
 
-  const parkAdjustment =
-  PARK_FACTOR[game.venue] || 0;
+  const parkAdjustment = PARK_FACTOR[game.venue] || 0;
 
-let away =
-  50 +
-  strength(
-    game.awayMetrics,
-    game.awayPitcherMetrics
-  ) +
-  recentFormBonus(game.awayMetrics) +
-  bullpenBonus(game.awayMetrics, game.awayBullpen) +
-  matchupBonus(game) +
-  (game.headToHead?.bonus || 0)
-  -
-  (
-    strength(
-      game.homeMetrics,
-      game.homePitcherMetrics
-    ) +
-    recentFormBonus(game.homeMetrics) +
-    bullpenBonus(game.homeMetrics, game.homeBullpen) +
-    homeAdvantageFor(game.venue)
-  );
+  let away =
+    50 +
+    strength(game.awayMetrics, game.awayPitcherMetrics) +
+    recentFormBonus(game.awayMetrics) +
+    bullpenBonus(game.awayMetrics, game.awayBullpen) +
+    matchupBonus(game) +
+    (game.headToHead?.bonus || 0) -
+    (
+      strength(game.homeMetrics, game.homePitcherMetrics) +
+      recentFormBonus(game.homeMetrics) +
+      bullpenBonus(game.homeMetrics, game.homeBullpen) +
+      homeAdvantageFor(game.venue)
+    );
 
-away -= parkAdjustment;
+  away -= parkAdjustment;
 
   if (game.status === "LIVE") {
-    away += ((game.awayScore || 0) - (game.homeScore || 0)) * 16;
+    const awayScore = game.awayScore || 0;
+    const homeScore = game.homeScore || 0;
+    const scoreDiff = awayScore - homeScore;
+
+    const inningText = String(game.inning || "");
+    const inningNumber =
+      Number(inningText.replace(/[^0-9]/g, "")) || 1;
+
+    const lateGameMultiplier =
+      inningNumber >= 8 ? 28 :
+      inningNumber >= 6 ? 22 :
+      inningNumber >= 4 ? 18 :
+      14;
+
+    away += scoreDiff * lateGameMultiplier;
+
+    if (inningNumber >= 7 && scoreDiff > 0) {
+      away += 4;
+    }
+
+    if (inningNumber >= 7 && scoreDiff < 0) {
+      away -= 4;
+    }
+
+    if (inningNumber >= 9 && scoreDiff > 0) {
+      away += 8;
+    }
+
+    if (inningNumber >= 9 && scoreDiff < 0) {
+      away -= 8;
+    }
   }
 
-  away = Math.round(Math.max(8, Math.min(92, away)));
+  away = Math.round(Math.max(3, Math.min(97, away)));
 
   return {
     away,
