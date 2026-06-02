@@ -440,9 +440,8 @@ function TeamBlock({
   }}
 >
   直近5試合：
-  {game.awayRecentForm?.wins ?? 0}勝
-  -
-  {game.awayRecentForm?.losses ?? 0}敗
+{recentForm?.wins ?? 0}勝 -
+{recentForm?.losses ?? 0}敗
 </div>      
       
     </div>
