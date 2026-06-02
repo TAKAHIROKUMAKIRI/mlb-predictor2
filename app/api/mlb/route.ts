@@ -339,6 +339,8 @@ const homeTeamId = g.teams?.home?.team?.id;
   awayBullpen,
   homeBullpen,
   headToHead,
+  awayRecentForm,
+  homeRecentForm,
 ] = await Promise.all([
   fetchPitcherMetrics(awayPitcher?.id),
   fetchPitcherMetrics(homePitcher?.id),
