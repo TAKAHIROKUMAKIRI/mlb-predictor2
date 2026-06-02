@@ -69,8 +69,11 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return offense + teamPitching + defense + starterPitching;
 }
 
-function recentFormBonus(teamMetrics: any) {
-  if (!teamMetrics) return 0;
+function recentFormBonus(form?: any) {
+  if (!form) return 0;
+
+  return form.bonus || 0;
+}
 
   const score =
     (teamMetrics.wrc - 100) * 0.15 +
