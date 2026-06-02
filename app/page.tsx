@@ -203,6 +203,43 @@ function statusLabel(status: string) {
   return status;
 }
 
+const TEAM_LOGOS: Record<string, string> = {
+  "Arizona Diamondbacks": "https://www.mlbstatic.com/team-logos/109.svg",
+  "Athletics": "https://www.mlbstatic.com/team-logos/133.svg",
+  "Atlanta Braves": "https://www.mlbstatic.com/team-logos/144.svg",
+  "Baltimore Orioles": "https://www.mlbstatic.com/team-logos/110.svg",
+  "Boston Red Sox": "https://www.mlbstatic.com/team-logos/111.svg",
+  "Chicago Cubs": "https://www.mlbstatic.com/team-logos/112.svg",
+  "Chicago White Sox": "https://www.mlbstatic.com/team-logos/145.svg",
+  "Cincinnati Reds": "https://www.mlbstatic.com/team-logos/113.svg",
+  "Cleveland Guardians": "https://www.mlbstatic.com/team-logos/114.svg",
+  "Colorado Rockies": "https://www.mlbstatic.com/team-logos/115.svg",
+  "Detroit Tigers": "https://www.mlbstatic.com/team-logos/116.svg",
+  "Houston Astros": "https://www.mlbstatic.com/team-logos/117.svg",
+  "Kansas City Royals": "https://www.mlbstatic.com/team-logos/118.svg",
+  "Los Angeles Angels": "https://www.mlbstatic.com/team-logos/108.svg",
+  "Los Angeles Dodgers": "https://www.mlbstatic.com/team-logos/119.svg",
+  "Miami Marlins": "https://www.mlbstatic.com/team-logos/146.svg",
+  "Milwaukee Brewers": "https://www.mlbstatic.com/team-logos/158.svg",
+  "Minnesota Twins": "https://www.mlbstatic.com/team-logos/142.svg",
+  "New York Mets": "https://www.mlbstatic.com/team-logos/121.svg",
+  "New York Yankees": "https://www.mlbstatic.com/team-logos/147.svg",
+  "Philadelphia Phillies": "https://www.mlbstatic.com/team-logos/143.svg",
+  "Pittsburgh Pirates": "https://www.mlbstatic.com/team-logos/134.svg",
+  "San Diego Padres": "https://www.mlbstatic.com/team-logos/135.svg",
+  "San Francisco Giants": "https://www.mlbstatic.com/team-logos/137.svg",
+  "Seattle Mariners": "https://www.mlbstatic.com/team-logos/136.svg",
+  "St. Louis Cardinals": "https://www.mlbstatic.com/team-logos/138.svg",
+  "Tampa Bay Rays": "https://www.mlbstatic.com/team-logos/139.svg",
+  "Texas Rangers": "https://www.mlbstatic.com/team-logos/140.svg",
+  "Toronto Blue Jays": "https://www.mlbstatic.com/team-logos/141.svg",
+  "Washington Nationals": "https://www.mlbstatic.com/team-logos/120.svg",
+};
+
+function teamLogo(team: string) {
+  return TEAM_LOGOS[team] || "";
+}
+
 function Metric({
   label,
   value,
@@ -271,15 +308,36 @@ function TeamBlock({
             {side}
           </div>
 
-          <h2
-            style={{
-              margin: "4px 0 8px",
-              fontSize: 22,
-              lineHeight: 1.2,
-            }}
-          >
-            {name}
-          </h2>
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    margin: "4px 0 8px",
+  }}
+>
+  {teamLogo(name) && (
+    <img
+      src={teamLogo(name)}
+      alt={name}
+      style={{
+        width: 34,
+        height: 34,
+        objectFit: "contain",
+      }}
+    />
+  )}
+
+  <h2
+    style={{
+      margin: 0,
+      fontSize: 22,
+      lineHeight: 1.2,
+    }}
+  >
+    {name}
+  </h2>
+</div>
 
           <div style={{ color: "#475569", fontSize: 14 }}>
             予想先発：<b>{probable || "未発表"}</b>
