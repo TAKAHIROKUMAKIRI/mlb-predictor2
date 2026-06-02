@@ -48,7 +48,11 @@ function metricsFor(team: string) {
 
 async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
   if (!teamId) {
-    return { appearances: 0, pitches: 0, fatigueScore: 0 };
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
   }
 
   try {
@@ -58,42 +62,65 @@ async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
     const start = new Date(end);
     start.setDate(start.getDate() - 3);
 
-    const url =
+    const startDate = start.toISOString().slice(0, 10);
+    const endDate = end.toISOString().slice(0, 10);
+
+    // まず直近3日間の試合一覧だけ取得
+    const scheduleUrl =
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
-      `&startDate=${start.toISOString().slice(0, 10)}` +
-      `&endDate=${end.toISOString().slice(0, 10)}` +
-      `&gameType=R&hydrate=boxscore`;
+      `&startDate=${startDate}&endDate=${endDate}&gameType=R`;
 
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("bullpen fatigue fetch failed");
+    const scheduleRes = await fetch(scheduleUrl, {
+      cache: "no-store",
+    });
 
-    const data = await res.json();
+    if (!scheduleRes.ok) {
+      throw new Error("bullpen schedule fetch failed");
+    }
+
+    const scheduleData = await scheduleRes.json();
 
     let appearances = 0;
     let pitches = 0;
 
-    for (const d of data.dates || []) {
+    for (const d of scheduleData.dates || []) {
       for (const g of d.games || []) {
         if (g.status?.abstractGameState !== "Final") continue;
 
+        const gamePk = g.gamePk;
+        if (!gamePk) continue;
+
+        // 試合ごとにboxscoreを直接取得
+        const boxscoreUrl =
+          `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
+
+        const boxscoreRes = await fetch(boxscoreUrl, {
+          cache: "no-store",
+        });
+
+        if (!boxscoreRes.ok) continue;
+
+        const boxscore = await boxscoreRes.json();
+
         const side =
-          g.teams?.away?.team?.id === teamId
-            ? g.boxscore?.teams?.away
-            : g.teams?.home?.team?.id === teamId
-              ? g.boxscore?.teams?.home
+          boxscore.teams?.away?.team?.id === teamId
+            ? boxscore.teams.away
+            : boxscore.teams?.home?.team?.id === teamId
+              ? boxscore.teams.home
               : null;
 
         if (!side?.players) continue;
 
-        for (const p of Object.values(side.players) as any[]) {
-          const pitching = p?.stats?.pitching;
+        for (const player of Object.values(side.players) as any[]) {
+          const pitching = player?.stats?.pitching;
           if (!pitching) continue;
 
-          const gamesPitched = Number(pitching.gamesPlayed || 0);
-          const numberOfPitches = Number(pitching.numberOfPitches || 0);
           const innings = String(pitching.inningsPitched || "0");
+          const numberOfPitches = Number(pitching.numberOfPitches || 0);
 
-          if (gamesPitched > 0 && innings !== "0.0") {
+          // 先発投手も含まれるため、登板投手としてまず集計
+          // 完全に0回の投手は除外
+          if (innings !== "0" && innings !== "0.0") {
             appearances += 1;
             pitches += numberOfPitches;
           }
@@ -112,70 +139,12 @@ async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
       fatigueScore: Number(fatigueScore.toFixed(1)),
     };
   } catch (e) {
-    return { appearances: 0, pitches: 0, fatigueScore: 0 };
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
   }
-}
-
-function easternDate(offset = 0) {
-  const now = new Date();
-  const et = new Date(
-    now.toLocaleString("en-US", {
-      timeZone: "America/New_York",
-    })
-  );
-
-  et.setDate(et.getDate() + offset);
-
-  const y = et.getFullYear();
-  const m = String(et.getMonth() + 1).padStart(2, "0");
-  const d = String(et.getDate()).padStart(2, "0");
-
-  return `${y}-${m}-${d}`;
-}
-
-function currentSeason() {
-  return new Date().getFullYear();
-}
-
-function parseInnings(ip: any) {
-  if (!ip) return 0;
-
-  const raw = String(ip);
-
-  if (!raw.includes(".")) {
-    return Number(raw) || 0;
-  }
-
-  const [whole, fraction] = raw.split(".");
-  const outs = Number(fraction) || 0;
-
-  return (Number(whole) || 0) + outs / 3;
-}
-
-function calcFip(stat: any) {
-  const ip = parseInnings(stat?.inningsPitched);
-
-  if (!ip) return null;
-
-  const hr = Number(stat?.homeRuns || 0);
-  const bb = Number(stat?.baseOnBalls || 0);
-  const hbp = Number(stat?.hitBatsmen || 0);
-  const k = Number(stat?.strikeOuts || 0);
-
-  const fipConstant = 3.1;
-
-  return Number(
-    (((13 * hr + 3 * (bb + hbp) - 2 * k) / ip) + fipConstant).toFixed(2)
-  );
-}
-
-function calcK9(stat: any) {
-  const ip = parseInnings(stat?.inningsPitched);
-  const k = Number(stat?.strikeOuts || 0);
-
-  if (!ip) return null;
-
-  return Number(((k * 9) / ip).toFixed(1));
 }
 
 async function fetchRecentForm(teamId?: number, referenceDate?: string) {
