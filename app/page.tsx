@@ -133,7 +133,7 @@ function winProbability(game: any) {
     (game.headToHead?.bonus || 0) -
     (
       (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
-      (recentFormBonus(game.homeMetrics) || 0) +
+      (recentFormBonus(game.homeRecentForm) || 0) +
       (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
       homeAdv
     );
