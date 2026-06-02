@@ -846,6 +846,16 @@ return (
   {game.away} {game.headToHead?.awayWins ?? 0}勝 -
   {game.home} {game.headToHead?.homeWins ?? 0}勝
 </li>
+
+                    <li>
+  予想根拠：
+  <ul style={{ marginTop: 6 }}>
+    {reasons.map((reason, index) => (
+      <li key={index}>{reason}</li>
+    ))}
+  </ul>
+</li>
+                    
                   </ul>
                 </div>
               </div>
