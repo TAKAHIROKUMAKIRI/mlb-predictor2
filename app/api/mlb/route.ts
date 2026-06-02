@@ -47,13 +47,12 @@ function metricsFor(team: string) {
 }
 
 async function fetchBullpenFatigue(teamId?: number) {
-  if (!teamId) {
-    return {
-      appearances: 0,
-      pitches: 0,
-      fatigueScore: 0,
-    };
-  }
+  return {
+    appearances: 0,
+    pitches: 0,
+    fatigueScore: 0,
+  };
+}
 
 async function fetchRecentForm(teamId?: number, referenceDate?: string) {
   if (!teamId) {
@@ -67,18 +66,16 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
     const start = new Date(end);
     start.setDate(start.getDate() - 30);
 
-    const startDate = start.toISOString().slice(0, 10);
-    const endDate = end.toISOString().slice(0, 10);
-
     const url =
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
-      `&startDate=${startDate}&endDate=${endDate}&gameType=R`;
+      `&startDate=${start.toISOString().slice(0, 10)}` +
+      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&gameType=R`;
 
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) throw new Error("recent form fetch failed");
 
     const data = await res.json();
-
     const finals: any[] = [];
 
     for (const d of data.dates || []) {
@@ -100,8 +97,10 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
       const awayScore = g.teams?.away?.score ?? 0;
       const homeScore = g.teams?.home?.score ?? 0;
 
-      const isAway = teamId === awayId;
-      const won = isAway ? awayScore > homeScore : homeScore > awayScore;
+      const won =
+        teamId === awayId
+          ? awayScore > homeScore
+          : homeScore > awayScore;
 
       if (won) wins += 1;
       else losses += 1;
@@ -115,75 +114,6 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
     };
   } catch (e) {
     return { wins: 0, losses: 0, games: 0, bonus: 0 };
-  }
-}
-  
-  try {
-    const today = new Date();
-    const end = today.toISOString().split("T")[0];
-
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - 3);
-    const start = startDate.toISOString().split("T")[0];
-
-    const url =
-      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}&startDate=${start}&endDate=${end}&hydrate=boxscore`;
-
-    const res = await fetch(url, { cache: "no-store" });
-
-    if (!res.ok) throw new Error("bullpen fetch failed");
-
-    const data = await res.json();
-
-    let appearances = 0;
-    let pitches = 0;
-
-    for (const date of data.dates || []) {
-      for (const game of date.games || []) {
-        const boxscore = game.boxscore;
-        const teams = boxscore?.teams;
-
-        const side =
-          teams?.away?.team?.id === teamId
-            ? teams.away
-            : teams?.home?.team?.id === teamId
-              ? teams.home
-              : null;
-
-        if (!side?.players) continue;
-
-        for (const player of Object.values(side.players) as any[]) {
-          const pitching = player?.stats?.pitching;
-
-          if (!pitching) continue;
-
-          const gamesPitched = Number(pitching.gamesPlayed || 0);
-          const numberOfPitches = Number(pitching.numberOfPitches || 0);
-
-          if (gamesPitched > 0) {
-            appearances += 1;
-            pitches += numberOfPitches;
-          }
-        }
-      }
-    }
-
-    const fatigueScore = Math.min(
-      6,
-      appearances * 0.4 + pitches * 0.015
-    );
-
-    return {
-      appearances,
-      pitches,
-      fatigueScore: Number(fatigueScore.toFixed(1)),
-    };
-  } catch (e) {
-    return {
-      appearances: 0,
-      pitches: 0,
-      fatigueScore: 0,
-    };
   }
 }
 
