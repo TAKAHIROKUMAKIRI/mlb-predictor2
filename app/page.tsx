@@ -163,6 +163,28 @@ function predictionReasons(game: any) {
   return reasons.slice(0, 5);
 }
 
+function confidenceLabel(prob: { away: number; home: number }) {
+  const maxProb = Math.max(prob.away, prob.home);
+
+  if (maxProb >= 75) {
+    return "★★★★★ 本命";
+  }
+
+  if (maxProb >= 65) {
+    return "★★★★☆ やや有力";
+  }
+
+  if (maxProb >= 57) {
+    return "★★★☆☆ 優勢";
+  }
+
+  if (maxProb >= 52) {
+    return "★★☆☆☆ 接戦";
+  }
+
+  return "★☆☆☆☆ 荒れやすい";
+}
+
 function winProbability(game: any) {
   if (game.status === "FINAL") {
     if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
