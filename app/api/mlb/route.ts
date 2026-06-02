@@ -409,6 +409,8 @@ debugHeadToHead: headToHead ?? {
   totalGames: 0,
   bonus: 0,
 },
+  };
+}
 
 async function fetchScheduleByDate(date: string) {
   const url =
