@@ -87,17 +87,22 @@ function bullpenBonus(teamMetrics: any, bullpen?: any) {
 }
 
 function matchupBonus(game: any) {
-  if (!game.awayMetrics || !game.homeMetrics) return 0;
+  const a = game.awayMetrics;
+  const h = game.homeMetrics;
+
+  if (!a || !h) return 0;
+  if (a.ops == null || a.wrc == null || a.wraa == null) return 0;
+  if (h.ops == null || h.wrc == null || h.wraa == null) return 0;
 
   const awayScore =
-    game.awayMetrics.wrc * 0.03 +
-    game.awayMetrics.wraa * 0.04 +
-    game.awayMetrics.ops * 20;
+    a.wrc * 0.03 +
+    a.wraa * 0.04 +
+    a.ops * 20;
 
   const homeScore =
-    game.homeMetrics.wrc * 0.03 +
-    game.homeMetrics.wraa * 0.04 +
-    game.homeMetrics.ops * 20;
+    h.wrc * 0.03 +
+    h.wraa * 0.04 +
+    h.ops * 20;
 
   const diff = awayScore - homeScore;
 
