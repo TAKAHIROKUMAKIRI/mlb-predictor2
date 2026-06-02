@@ -749,8 +749,9 @@ export default function Page() {
 
           {filtered.map((game) => {
             const prob = winProbability(game);
+const reasons = predictionReasons(game);
 
-            return (
+return (
               <div
                 key={game.id}
                 style={{
