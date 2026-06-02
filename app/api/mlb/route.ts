@@ -298,6 +298,8 @@ fetchRecentForm(homeTeamId, date),
 homePitcherMetrics,
 awayBullpen,
 homeBullpen,
+awayRecentForm,
+homeRecentForm,
 headToHead: headToHead ?? {
   awayWins: 0,
   homeWins: 0,
