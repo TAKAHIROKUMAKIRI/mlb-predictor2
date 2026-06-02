@@ -81,9 +81,14 @@ function recentFormBonus(recentForm: any) {
 }
 
 function bullpenBonus(teamMetrics: any, bullpen?: any) {
-  if (!teamMetrics || teamMetrics.fip === null) {
+  if (!bullpen) {
     return 0;
   }
+
+  const fatigue = bullpen.fatigueScore || 0;
+
+  return Math.max(-10, -(fatigue * 0.8));
+}
 
 }
 
