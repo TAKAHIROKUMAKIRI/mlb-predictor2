@@ -211,7 +211,6 @@ async function fetchPitcherMetrics(playerId?: number) {
     }
 
     const data = await res.json();
-
     const stat = data.stats?.[0]?.splits?.[0]?.stat || null;
 
     if (!stat) {
@@ -243,102 +242,13 @@ async function fetchHeadToHead(
   awayTeamId?: number,
   homeTeamId?: number
 ) {
-  if (!awayTeamId || !homeTeamId) {
-    return {
-      awayWins: 0,
-      homeWins: 0,
-      totalGames: 0,
-      bonus: 0,
-    };
-  }
-
-  try {
-    const season = currentSeason();
-
-    const url =
-      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=${season}&teamId=${awayTeamId}&opponentId=${homeTeamId}&gameType=R`;
-
-    const res = await fetch(url, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) throw new Error("head to head fetch failed");
-
-    const data = await res.json();
-
-    let awayWins = 0;
-    let homeWins = 0;
-
-    for (const date of data.dates || []) {
-      for (const game of date.games || []) {
-        if (game.status?.abstractGameState !== "Final") continue;
-
-        const awayScore = game.teams?.away?.score ?? 0;
-        const homeScore = game.teams?.home?.score ?? 0;
-        const gameAwayId = game.teams?.away?.team?.id;
-        const gameHomeId = game.teams?.home?.team?.id;
-
-        const winnerId =
-          awayScore > homeScore ? gameAwayId : gameHomeId;
-
-        if (winnerId === awayTeamId) awayWins += 1;
-        if (winnerId === homeTeamId) homeWins += 1;
-      }
-    }
-
-    const totalGames = awayWins + homeWins;
-    const diff = awayWins - homeWins;
-
-    return {
-      awayWins,
-      homeWins,
-      totalGames,
-      bonus: Math.max(-3, Math.min(3, diff * 0.8)),
-    };
-  } catch (e) {
-    return {
-      awayWins: 0,
-      homeWins: 0,
-      totalGames: 0,
-      bonus: 0,
-    };
-  }
+  return {
+    awayWins: 0,
+    homeWins: 0,
+    totalGames: 0,
+    bonus: 0,
+  };
 }
-  
-  try {
-    const season = currentSeason();
-
-    const url =
-      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=season&group=pitching&season=${season}`;
-
-    const res = await fetch(url, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) throw new Error("Pitcher stats fetch failed");
-
-    const data = await res.json();
-
-    const stat =
-      data.stats?.[0]?.splits?.[0]?.stat || null;
-
-    if (!stat) {
-      return {
-        era: null,
-        fip: null,
-        whip: null,
-        k9: null,
-      };
-    }
-
-    return {
-      era: stat.era ? Number(stat.era) : null,
-      fip: calcFip(stat),
-      whip: stat.whip ? Number(stat.whip) : null,
-      k9: calcK9(stat),
-    };
-}
-
 async function normalizeGame(g: any, date: string) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
