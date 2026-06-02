@@ -119,19 +119,20 @@ function winProbability(game: any) {
   }
 
   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
+  const homeAdv = homeAdvantageFor(game.venue) || 2.5;
 
   let away =
     50 +
-    strength(game.awayMetrics, game.awayPitcherMetrics) +
-    recentFormBonus(game.awayMetrics) +
-    bullpenBonus(game.awayMetrics, game.awayBullpen) +
-    matchupBonus(game) +
+    (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
+    (recentFormBonus(game.awayMetrics) || 0) +
+    (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
+    (matchupBonus(game) || 0) +
     (game.headToHead?.bonus || 0) -
     (
-      strength(game.homeMetrics, game.homePitcherMetrics) +
-      recentFormBonus(game.homeMetrics) +
-      bullpenBonus(game.homeMetrics, game.homeBullpen) +
-      homeAdvantageFor(game.venue)
+      (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
+      (recentFormBonus(game.homeMetrics) || 0) +
+      (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
+      homeAdv
     );
 
   away -= parkAdjustment;
@@ -142,8 +143,7 @@ function winProbability(game: any) {
     const scoreDiff = awayScore - homeScore;
 
     const inningText = String(game.inning || "");
-    const inningNumber =
-      Number(inningText.replace(/[^0-9]/g, "")) || 1;
+    const inningNumber = Number(inningText.replace(/[^0-9]/g, "")) || 1;
 
     const lateGameMultiplier =
       inningNumber >= 8 ? 28 :
@@ -153,31 +153,16 @@ function winProbability(game: any) {
 
     away += scoreDiff * lateGameMultiplier;
 
-    if (inningNumber >= 7 && scoreDiff > 0) {
-      away += 4;
-    }
-
-    if (inningNumber >= 7 && scoreDiff < 0) {
-      away -= 4;
-    }
-
-    if (inningNumber >= 9 && scoreDiff > 0) {
-      away += 8;
-    }
-
-    if (inningNumber >= 9 && scoreDiff < 0) {
-      away -= 8;
-    }
+    if (inningNumber >= 7 && scoreDiff > 0) away += 4;
+    if (inningNumber >= 7 && scoreDiff < 0) away -= 4;
+    if (inningNumber >= 9 && scoreDiff > 0) away += 8;
+    if (inningNumber >= 9 && scoreDiff < 0) away -= 8;
   }
 
-  console.log(
-  "WINDEBUG",
-  game.away,
-  away,
-  game.headToHead,
-  game.venue
-);
-  
+  if (!Number.isFinite(away)) {
+    away = 50;
+  }
+
   away = Math.round(Math.max(3, Math.min(97, away)));
 
   return {
