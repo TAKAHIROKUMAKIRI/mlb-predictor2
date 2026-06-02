@@ -178,6 +178,69 @@ function calcK9(stat: any) {
   return Number(((k * 9) / ip).toFixed(1));
 }
 
+async function fetchRecentForm(teamId?: number, referenceDate?: string) {
+  if (!teamId) {
+    return { wins: 0, losses: 0, games: 0, bonus: 0 };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const start = new Date(end);
+    start.setDate(start.getDate() - 30);
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
+      `&startDate=${start.toISOString().slice(0, 10)}` +
+      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&gameType=R`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("recent form fetch failed");
+
+    const data = await res.json();
+    const finals: any[] = [];
+
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        if (g.status?.abstractGameState === "Final") {
+          finals.push(g);
+        }
+      }
+    }
+
+    const last5 = finals.slice(-5);
+
+    let wins = 0;
+    let losses = 0;
+
+    for (const g of last5) {
+      const awayId = g.teams?.away?.team?.id;
+      const homeId = g.teams?.home?.team?.id;
+      const awayScore = g.teams?.away?.score ?? 0;
+      const homeScore = g.teams?.home?.score ?? 0;
+
+      const won =
+        teamId === awayId
+          ? awayScore > homeScore
+          : homeScore > awayScore;
+
+      if (won) wins += 1;
+      else losses += 1;
+    }
+
+    return {
+      wins,
+      losses,
+      games: last5.length,
+      bonus: Math.max(-4, Math.min(4, (wins - losses) * 1.2)),
+    };
+  } catch (e) {
+    return { wins: 0, losses: 0, games: 0, bonus: 0 };
+  }
+}
+
 async function fetchPitcherMetrics(playerId?: number) {
   if (!playerId) {
     return {
