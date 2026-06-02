@@ -214,6 +214,47 @@ function currentSeason() {
   return new Date().getFullYear();
 }
 
+function parseInnings(ip: any) {
+  if (!ip) return 0;
+
+  const raw = String(ip);
+
+  if (!raw.includes(".")) {
+    return Number(raw) || 0;
+  }
+
+  const [whole, fraction] = raw.split(".");
+  const outs = Number(fraction) || 0;
+
+  return (Number(whole) || 0) + outs / 3;
+}
+
+function calcFip(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+
+  if (!ip) return null;
+
+  const hr = Number(stat?.homeRuns || 0);
+  const bb = Number(stat?.baseOnBalls || 0);
+  const hbp = Number(stat?.hitBatsmen || 0);
+  const k = Number(stat?.strikeOuts || 0);
+
+  const fipConstant = 3.1;
+
+  return Number(
+    (((13 * hr + 3 * (bb + hbp) - 2 * k) / ip) + fipConstant).toFixed(2)
+  );
+}
+
+function calcK9(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+  const k = Number(stat?.strikeOuts || 0);
+
+  if (!ip) return null;
+
+  return Number(((k * 9) / ip).toFixed(1));
+}
+
 async function fetchPitcherMetrics(playerId?: number) {
   if (!playerId) {
     return {
