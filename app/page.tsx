@@ -84,7 +84,6 @@ function bullpenBonus(teamMetrics: any, bullpen?: any) {
     return 0;
   }
 
-  return ...
 }
 
 function matchupBonus(game: any) {
