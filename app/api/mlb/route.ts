@@ -335,14 +335,6 @@ async function fetchHeadToHead(
       whip: stat.whip ? Number(stat.whip) : null,
       k9: calcK9(stat),
     };
-  } catch (e) {
-    return {
-      era: null,
-      fip: null,
-      whip: null,
-      k9: null,
-    };
-  }
 }
 
 async function normalizeGame(g: any, date: string) {
