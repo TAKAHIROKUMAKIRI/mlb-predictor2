@@ -836,27 +836,29 @@ return (
                   </div>
 
                   <ul style={{ color: "#cbd5e1", lineHeight: 1.8, margin: 0 }}>
-                    <li>試合状況：{game.detailedStatus}</li>
-                    <li>球場：{game.venue}</li>
-                    <li>
-                      スコア：{game.awayScore} - {game.homeScore}
-                    </li>
-                     <li>
-  今季対戦成績：
-  {game.away} {game.headToHead?.awayWins ?? 0}勝 -
-  {game.home} {game.headToHead?.homeWins ?? 0}勝
-</li>
+  <li>試合状況：{game.detailedStatus}</li>
 
-                    <li>
-  予想根拠：
-  <ul style={{ marginTop: 6 }}>
-    {reasons.map((reason, index) => (
-      <li key={index}>{reason}</li>
-    ))}
-  </ul>
-</li>
-                    
-                  </ul>
+  <li>球場：{game.venue}</li>
+
+  <li>
+    スコア：{game.awayScore} - {game.homeScore}
+  </li>
+
+  <li>
+    今季対戦成績：
+    {game.away} {game.headToHead?.awayWins ?? 0}勝 -
+    {game.home} {game.headToHead?.homeWins ?? 0}勝
+  </li>
+
+  <li>
+    予想根拠：
+    <ul>
+      {reasons.map((reason, idx) => (
+        <li key={idx}>{reason}</li>
+      ))}
+    </ul>
+  </li>
+</ul>
                 </div>
               </div>
             );
