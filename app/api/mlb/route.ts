@@ -206,7 +206,9 @@ async function fetchPitcherMetrics(playerId?: number) {
       cache: "no-store",
     });
 
-    if (!res.ok) throw new Error("Pitcher stats fetch failed");
+    if (!res.ok) {
+      throw new Error("Pitcher stats fetch failed");
+    }
 
     const data = await res.json();
 
