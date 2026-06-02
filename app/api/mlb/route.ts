@@ -414,6 +414,24 @@ async function fetchScheduleByDate(date: string) {
   );
 }
 
+function easternDate(offset = 0) {
+  const now = new Date();
+
+  const et = new Date(
+    now.toLocaleString("en-US", {
+      timeZone: "America/New_York",
+    })
+  );
+
+  et.setDate(et.getDate() + offset);
+
+  const y = et.getFullYear();
+  const m = String(et.getMonth() + 1).padStart(2, "0");
+  const d = String(et.getDate()).padStart(2, "0");
+
+  return `${y}-${m}-${d}`;
+}
+
 export async function GET() {
   try {
     const dates = [
