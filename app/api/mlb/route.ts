@@ -149,7 +149,7 @@ hits +=
           
           // 先発投手も含まれるため、登板投手としてまず集計
           // 完全に0回の投手は除外
-          if (innings !== "0" && innings !== "0.0") {
+          if (ip > 0) {
             appearances += 1;
             pitches += numberOfPitches;
           }
