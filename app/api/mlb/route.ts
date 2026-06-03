@@ -230,6 +230,86 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
   }
 }
 
+async function fetchHomeAwayRecord(
+  teamId?: number,
+  type: "home" | "away" = "home",
+  referenceDate?: string
+) {
+  if (!teamId) {
+    return {
+      wins: 0,
+      losses: 0,
+      winPct: 0,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const season = currentSeason();
+
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
+      `&season=${season}` +
+      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&gameType=R`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("home away fetch failed");
+
+    const data = await res.json();
+
+    let wins = 0;
+    let losses = 0;
+
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        if (g.status?.abstractGameState !== "Final") continue;
+
+        const awayId = g.teams?.away?.team?.id;
+        const homeId = g.teams?.home?.team?.id;
+
+        const awayScore = g.teams?.away?.score ?? 0;
+        const homeScore = g.teams?.home?.score ?? 0;
+
+        const isTarget =
+          type === "home" ? homeId === teamId : awayId === teamId;
+
+        if (!isTarget) continue;
+
+        const won =
+          type === "home"
+            ? homeScore > awayScore
+            : awayScore > homeScore;
+
+        if (won) wins += 1;
+        else losses += 1;
+      }
+    }
+
+    const games = wins + losses;
+    const winPct = games > 0 ? wins / games : 0.5;
+
+    const bonus = Math.max(-4, Math.min(4, (winPct - 0.5) * 12));
+
+    return {
+      wins,
+      losses,
+      winPct: Number(winPct.toFixed(3)),
+      bonus: Number(bonus.toFixed(1)),
+    };
+  } catch (e) {
+    return {
+      wins: 0,
+      losses: 0,
+      winPct: 0,
+      bonus: 0,
+    };
+  }
+}
+
 function currentSeason() {
   return new Date().getFullYear();
 }
@@ -365,14 +445,18 @@ const homeTeamId = g.teams?.home?.team?.id;
   headToHead,
   awayRecentForm,
   homeRecentForm,
+  awayRoadRecord,
+  homeHomeRecord,
 ] = await Promise.all([
   fetchPitcherMetrics(awayPitcher?.id),
-fetchPitcherMetrics(homePitcher?.id),
-fetchBullpenFatigue(awayTeamId),
-fetchBullpenFatigue(homeTeamId),
-fetchHeadToHead(awayTeamId, homeTeamId),
-fetchRecentForm(awayTeamId, date),
-fetchRecentForm(homeTeamId, date),
+  fetchPitcherMetrics(homePitcher?.id),
+  fetchBullpenFatigue(awayTeamId, date),
+  fetchBullpenFatigue(homeTeamId, date),
+  fetchHeadToHead(awayTeamId, homeTeamId),
+  fetchRecentForm(awayTeamId, date),
+  fetchRecentForm(homeTeamId, date),
+  fetchHomeAwayRecord(awayTeamId, "away", date),
+  fetchHomeAwayRecord(homeTeamId, "home", date),
 ]);
 
   return {
@@ -396,6 +480,8 @@ awayBullpen,
 homeBullpen,
 awayRecentForm,
 homeRecentForm,
+    awayRoadRecord,
+homeHomeRecord,
 headToHead: headToHead ?? {
   awayWins: 0,
   homeWins: 0,
