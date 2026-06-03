@@ -512,9 +512,12 @@ function TeamBlock({
   }}
 >
   ブルペン直近3日：
-  登板 {bullpen?.appearances ?? 0}人 /
-  投球数 {bullpen?.pitches ?? 0}球 /
-  疲労 {bullpen?.fatigueScore ?? 0}
+登板 {bullpen.appearances}人 /
+投球数 {bullpen.pitches}球 /
+疲労 {bullpen.fatigueScore}
+
+ERA {bullpen.era}
+WHIP {bullpen.whip}
 </div>
 
 <div
