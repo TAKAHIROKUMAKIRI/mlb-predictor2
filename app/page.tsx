@@ -520,6 +520,7 @@ function TeamBlock({
   直近5試合：
 {recentForm?.wins ?? 0}勝 -
 {recentForm?.losses ?? 0}敗
+ / 相手強度 {recentForm?.opponentStrength ?? 0}
 </div>      
       
     </div>
