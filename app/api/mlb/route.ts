@@ -168,10 +168,6 @@ const whip =
     ? (walks + hits) / innings
     : 0;
     
-const fatigueScore = Math.min(
-  10,
-  appearances * 0.45 + pitches * 0.018
-);
     
     const fatigueScore = Math.min(
       10,
