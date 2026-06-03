@@ -85,30 +85,10 @@ function homeAwayBonus(record?: any) {
   return record.bonus || 0;
 }
 
-function bullpenBonus(
-  teamMetrics: any,
-  bullpen?: any
-) {
-  if (!bullpen) return 0;
-
-  let score = 0;
-
-  if (bullpen.era <= 3.5)
-    score += 2;
-
-  else if (bullpen.era >= 5)
-    score -= 2;
-
-  if (bullpen.whip <= 1.2)
-    score += 2;
-
-  else if (bullpen.whip >= 1.45)
-    score -= 2;
-
-  score -= bullpen.fatigueScore * 0.15;
-
-  return score;
-}
+function bullpenBonus(teamMetrics: any, bullpen?: any) {
+  if (!bullpen) {
+    return 0;
+  }
 
   const fatigue = bullpen.fatigueScore || 0;
 
