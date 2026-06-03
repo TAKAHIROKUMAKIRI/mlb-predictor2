@@ -236,24 +236,23 @@ async function fetchHomeAwayRecord(
   referenceDate?: string
 ) {
   if (!teamId) {
-    return {
-      wins: 0,
-      losses: 0,
-      winPct: 0,
-      bonus: 0,
-    };
+    return { wins: 0, losses: 0, winPct: 0, bonus: 0 };
   }
 
   try {
-    const season = currentSeason();
-
     const end = referenceDate ? new Date(referenceDate) : new Date();
     end.setDate(end.getDate() - 1);
 
+    const season = end.getFullYear();
+    const start = new Date(`${season}-03-01`);
+
+    const startDate = start.toISOString().slice(0, 10);
+    const endDate = end.toISOString().slice(0, 10);
+
     const url =
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
-      `&season=${season}` +
-      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&startDate=${startDate}` +
+      `&endDate=${endDate}` +
       `&gameType=R`;
 
     const res = await fetch(url, { cache: "no-store" });
@@ -274,13 +273,14 @@ async function fetchHomeAwayRecord(
         const awayScore = g.teams?.away?.score ?? 0;
         const homeScore = g.teams?.home?.score ?? 0;
 
-        const isTarget =
-          type === "home" ? homeId === teamId : awayId === teamId;
+        const isHomeGame = homeId === teamId;
+        const isAwayGame = awayId === teamId;
 
-        if (!isTarget) continue;
+        if (type === "home" && !isHomeGame) continue;
+        if (type === "away" && !isAwayGame) continue;
 
         const won =
-          type === "home"
+          isHomeGame
             ? homeScore > awayScore
             : awayScore > homeScore;
 
@@ -291,7 +291,6 @@ async function fetchHomeAwayRecord(
 
     const games = wins + losses;
     const winPct = games > 0 ? wins / games : 0.5;
-
     const bonus = Math.max(-4, Math.min(4, (winPct - 0.5) * 12));
 
     return {
@@ -301,12 +300,7 @@ async function fetchHomeAwayRecord(
       bonus: Number(bonus.toFixed(1)),
     };
   } catch (e) {
-    return {
-      wins: 0,
-      losses: 0,
-      winPct: 0,
-      bonus: 0,
-    };
+    return { wins: 0, losses: 0, winPct: 0, bonus: 0 };
   }
 }
 
