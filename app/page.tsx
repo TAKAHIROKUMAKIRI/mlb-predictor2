@@ -80,6 +80,11 @@ function recentFormBonus(recentForm: any) {
   return Math.max(-3, Math.min(3, score));
 }
 
+function homeAwayBonus(record?: any) {
+  if (!record) return 0;
+  return record.bonus || 0;
+}
+
 function bullpenBonus(teamMetrics: any, bullpen?: any) {
   if (!bullpen) {
     return 0;
@@ -201,18 +206,20 @@ function winProbability(game: any) {
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
 
   let away =
-    50 +
-    (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
-    (recentFormBonus(game.awayRecentForm) || 0) +
-    (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
-    (matchupBonus(game) || 0) +
-    (game.headToHead?.bonus || 0) -
-    (
-      (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
-      (recentFormBonus(game.homeRecentForm) || 0) +
-      (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
-      homeAdv
-    );
+  50 +
+  (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
+  (recentFormBonus(game.awayRecentForm) || 0) +
+  (homeAwayBonus(game.awayRoadRecord) || 0) +
+  (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
+  (matchupBonus(game) || 0) +
+  (game.headToHead?.bonus || 0) -
+  (
+    (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
+    (recentFormBonus(game.homeRecentForm) || 0) +
+    (homeAwayBonus(game.homeHomeRecord) || 0) +
+    (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
+    homeAdv
+  );
 
   away -= parkAdjustment;
 
@@ -879,6 +886,14 @@ return (
     {game.home} {game.headToHead?.homeWins ?? 0}勝
   </li>
 
+                    <li>
+  ホーム/アウェイ成績：
+  {game.away} away {game.awayRoadRecord?.wins ?? 0}勝-
+  {game.awayRoadRecord?.losses ?? 0}敗 /
+  {game.home} home {game.homeHomeRecord?.wins ?? 0}勝-
+  {game.homeHomeRecord?.losses ?? 0}敗
+</li>
+                    
   <li>
     予想根拠：
     <ul>
