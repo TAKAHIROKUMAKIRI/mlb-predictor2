@@ -81,6 +81,11 @@ async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
     const scheduleData = await scheduleRes.json();
 
     let appearances = 0;
+    let innings = 0;
+let earnedRuns = 0;
+let strikeouts = 0;
+let walks = 0;
+let hits = 0;
     let pitches = 0;
 
     for (const d of scheduleData.dates || []) {
@@ -116,8 +121,33 @@ async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
           if (!pitching) continue;
 
           const innings = String(pitching.inningsPitched || "0");
-          const numberOfPitches = Number(pitching.numberOfPitches || 0);
+          const gamesPitched =
+  Number(pitching.gamesPlayed || 0);
 
+const numberOfPitches =
+  Number(pitching.numberOfPitches || 0);
+
+          const ip =
+  parseFloat(
+    String(
+      pitching.inningsPitched || 0
+    )
+  ) || 0;
+
+innings += ip;
+
+earnedRuns +=
+  Number(pitching.earnedRuns || 0);
+
+strikeouts +=
+  Number(pitching.strikeOuts || 0);
+
+walks +=
+  Number(pitching.baseOnBalls || 0);
+
+hits +=
+  Number(pitching.hits || 0);
+          
           // 先発投手も含まれるため、登板投手としてまず集計
           // 完全に0回の投手は除外
           if (innings !== "0" && innings !== "0.0") {
@@ -128,16 +158,54 @@ async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
       }
     }
 
+    const era =
+  innings > 0
+    ? (earnedRuns * 9) / innings
+    : 0;
+
+const whip =
+  innings > 0
+    ? (walks + hits) / innings
+    : 0;
+
+    const era =
+  innings > 0
+    ? (earnedRuns * 9) / innings
+    : 0;
+
+const whip =
+  innings > 0
+    ? (walks + hits) / innings
+    : 0;
+    
+const fatigueScore = Math.min(
+  10,
+  appearances * 0.45 + pitches * 0.018
+);
+    
     const fatigueScore = Math.min(
       10,
       appearances * 0.45 + pitches * 0.018
     );
 
     return {
-      appearances,
-      pitches,
-      fatigueScore: Number(fatigueScore.toFixed(1)),
-    };
+  appearances,
+  pitches,
+
+  fatigueScore:
+    Number(fatigueScore.toFixed(1)),
+
+  era:
+    Number(era.toFixed(2)),
+
+  whip:
+    Number(whip.toFixed(2)),
+
+  strikeouts,
+
+  innings:
+    Number(innings.toFixed(1)),
+};
   } catch (e) {
     return {
       appearances: 0,
