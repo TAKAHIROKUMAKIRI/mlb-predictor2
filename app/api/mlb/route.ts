@@ -157,15 +157,6 @@ hits +=
       }
     }
 
-    const era =
-  innings > 0
-    ? (earnedRuns * 9) / innings
-    : 0;
-
-const whip =
-  innings > 0
-    ? (walks + hits) / innings
-    : 0;
 
     const era =
   innings > 0
