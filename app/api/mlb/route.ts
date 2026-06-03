@@ -120,9 +120,8 @@ let hits = 0;
           const pitching = player?.stats?.pitching;
           if (!pitching) continue;
 
-          const innings = String(pitching.inningsPitched || "0");
-          const gamesPitched =
-  Number(pitching.gamesPlayed || 0);
+          const inningsText = String(pitching.inningsPitched || "0");
+          const gamesPitched = Number(pitching.gamesPlayed || 0);
 
 const numberOfPitches =
   Number(pitching.numberOfPitches || 0);
