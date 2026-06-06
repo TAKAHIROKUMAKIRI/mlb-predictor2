@@ -636,6 +636,82 @@ async function fetchHeadToHead(
   }
 }
 
+async function normalizeGame(g: any, date: string) {
+  const away = g.teams?.away?.team?.name || "Away";
+  const home = g.teams?.home?.team?.name || "Home";
+
+  const awayTeamId = g.teams?.away?.team?.id;
+  const homeTeamId = g.teams?.home?.team?.id;
+
+  const awayPitcher = g.teams?.away?.probablePitcher;
+  const homePitcher = g.teams?.home?.probablePitcher;
+
+  const abstract = g.status?.abstractGameState || "Preview";
+
+  const status =
+    abstract === "Live"
+      ? "LIVE"
+      : abstract === "Final"
+        ? "FINAL"
+        : "SCHEDULED";
+
+  const [
+    awayPitcherMetrics,
+    homePitcherMetrics,
+    awayBullpen,
+    homeBullpen,
+    headToHead,
+    awayRecentForm,
+    homeRecentForm,
+    awayRoadRecord,
+    homeHomeRecord,
+    awayRecentPitcherForm,
+    homeRecentPitcherForm,
+  ] = await Promise.all([
+    fetchPitcherMetrics(awayPitcher?.id),
+    fetchPitcherMetrics(homePitcher?.id),
+    fetchBullpenFatigue(awayTeamId, date),
+    fetchBullpenFatigue(homeTeamId, date),
+    fetchHeadToHead(awayTeamId, homeTeamId),
+    fetchRecentForm(awayTeamId, date),
+    fetchRecentForm(homeTeamId, date),
+    fetchHomeAwayRecord(awayTeamId, "away", date),
+    fetchHomeAwayRecord(homeTeamId, "home", date),
+    fetchRecentPitcherForm(awayPitcher?.id, date),
+    fetchRecentPitcherForm(homePitcher?.id, date),
+  ]);
+
+  return {
+    id: g.gamePk,
+    date,
+    gameDate: g.gameDate || "",
+    away,
+    home,
+    awayScore: g.teams?.away?.score ?? 0,
+    homeScore: g.teams?.home?.score ?? 0,
+    status,
+    detailedStatus: g.status?.detailedState || "",
+    inning: g.linescore?.currentInningOrdinal || "",
+    venue: g.venue?.name || "",
+    awayProbable: awayPitcher?.fullName || "未発表",
+    homeProbable: homePitcher?.fullName || "未発表",
+    awayMetrics: metricsFor(away),
+    homeMetrics: metricsFor(home),
+    awayPitcherMetrics,
+    homePitcherMetrics,
+    awayBullpen,
+    homeBullpen,
+    awayRecentForm,
+    homeRecentForm,
+    awayRoadRecord,
+    homeHomeRecord,
+    awayRecentPitcherForm,
+    homeRecentPitcherForm,
+    headToHead,
+    debugHeadToHead: headToHead,
+  };
+}
+
 async function fetchScheduleByDate(date: string) {
   const url =
     `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}&hydrate=team,linescore,probablePitcher`;
