@@ -256,6 +256,82 @@ async function fetchRecentForm(teamId?: number, referenceDate?: string) {
   }
 }
 
+async function fetchHomeAwayRecord(
+  teamId?: number,
+  type: "home" | "away" = "home",
+  referenceDate?: string
+) {
+  if (!teamId) {
+    return {
+      wins: 0,
+      losses: 0,
+      winPct: 0.5,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
+      `&season=${end.getFullYear()}` +
+      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&gameType=R`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    const data = await res.json();
+
+    let wins = 0;
+    let losses = 0;
+
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        if (g.status?.abstractGameState !== "Final") continue;
+
+        const awayId = g.teams?.away?.team?.id;
+        const homeId = g.teams?.home?.team?.id;
+
+        const awayScore = g.teams?.away?.score ?? 0;
+        const homeScore = g.teams?.home?.score ?? 0;
+
+        const target =
+          type === "home"
+            ? homeId === teamId
+            : awayId === teamId;
+
+        if (!target) continue;
+
+        const won =
+          type === "home"
+            ? homeScore > awayScore
+            : awayScore > homeScore;
+
+        if (won) wins++;
+        else losses++;
+      }
+    }
+
+    const games = wins + losses;
+    const winPct = games > 0 ? wins / games : 0.5;
+
+    return {
+      wins,
+      losses,
+      winPct,
+      bonus: (winPct - 0.5) * 8,
+    };
+  } catch {
+    return {
+      wins: 0,
+      losses: 0,
+      winPct: 0.5,
+      bonus: 0,
+    };
+  }
+}
+
 function recentFormBonus(form?: any) {
   return form?.bonus || 0;
 }
