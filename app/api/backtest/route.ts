@@ -107,6 +107,81 @@ const PARK_FACTOR: Record<string, number> = {
   "Dodger Stadium": -0.3,
 };
 
+function strength(teamMetrics: any, pitcherMetrics?: any) {
+  if (!teamMetrics) return 0;
+
+  let score = 0;
+
+  score += (teamMetrics.ops - 0.7) * 35;
+  score += (teamMetrics.woba - 0.31) * 55;
+  score += (teamMetrics.wraa || 0) * 0.05;
+  score += (teamMetrics.wrc - 100) * 0.04;
+  score += (4.2 - teamMetrics.fip) * 1.2;
+  score += (teamMetrics.uzr || 0) * 0.08;
+
+  if (pitcherMetrics?.era != null) {
+    score += (4.2 - pitcherMetrics.era) * 1.2;
+  }
+
+  if (pitcherMetrics?.fip != null) {
+    score += (4.2 - pitcherMetrics.fip) * 1.4;
+  }
+
+  if (pitcherMetrics?.whip != null) {
+    score += (1.3 - pitcherMetrics.whip) * 2;
+  }
+
+  if (pitcherMetrics?.k9 != null) {
+    score += (pitcherMetrics.k9 - 8) * 0.25;
+  }
+
+  return Math.max(-12, Math.min(12, score));
+}
+
+function recentFormBonus(form?: any) {
+  return form?.bonus || 0;
+}
+
+function homeAwayBonus(record?: any) {
+  return record?.bonus || 0;
+}
+
+function bullpenBonus(teamMetrics: any, bullpen?: any) {
+  if (!bullpen) return 0;
+
+  let score = 0;
+
+  score -= (bullpen.fatigueScore || 0) * 0.6;
+
+  if (bullpen.era <= 3.5) score += 3;
+  else if (bullpen.era <= 4.2) score += 1;
+  else if (bullpen.era >= 5.5) score -= 3;
+
+  if (bullpen.whip <= 1.2) score += 2;
+  else if (bullpen.whip >= 1.4) score -= 2;
+
+  return Math.max(-8, Math.min(8, score));
+}
+
+function matchupBonus(game: any) {
+  const a = game.awayMetrics;
+  const h = game.homeMetrics;
+
+  if (!a || !h) return 0;
+
+  const awayScore =
+    a.wrc * 0.03 +
+    a.wraa * 0.04 +
+    a.ops * 20;
+
+  const homeScore =
+    h.wrc * 0.03 +
+    h.wraa * 0.04 +
+    h.ops * 20;
+
+  return Math.max(-3, Math.min(3, (awayScore - homeScore) * 0.25));
+}
+
 function homeAdvantageFor(venue?: string) {
   return 2.5;
 }
