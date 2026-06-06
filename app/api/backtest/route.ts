@@ -230,6 +230,12 @@ async function normalizeBacktestGame(g: any) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
 
+  const awayTeamId = g.teams?.away?.team?.id;
+  const homeTeamId = g.teams?.home?.team?.id;
+
+  const awayRecentForm = await fetchRecentForm(awayTeamId, g.gameDate);
+  const homeRecentForm = await fetchRecentForm(homeTeamId, g.gameDate);
+
   return {
     id: g.gamePk,
     date: g.gameDate,
@@ -239,7 +245,6 @@ async function normalizeBacktestGame(g: any) {
     awayScore: g.teams?.away?.score ?? 0,
     homeScore: g.teams?.home?.score ?? 0,
 
-    // FINAL扱いにすると実結果100%になるので、予想用はSCHEDULED扱い
     status: "SCHEDULED",
 
     venue: g.venue?.name || "",
@@ -253,8 +258,8 @@ async function normalizeBacktestGame(g: any) {
     awayBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
     homeBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
 
-    awayRecentForm: { wins: 0, losses: 0, games: 0, bonus: 0 },
-    homeRecentForm: { wins: 0, losses: 0, games: 0, bonus: 0 },
+    awayRecentForm,
+    homeRecentForm,
 
     awayRoadRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
     homeHomeRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
@@ -265,7 +270,6 @@ async function normalizeBacktestGame(g: any) {
     homeRecentPitcherForm: { bonus: 0 },
   };
 }
-
 function backtestWinProbability(game: any) {
   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
