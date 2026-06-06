@@ -614,8 +614,24 @@ fetchRecentPitcherForm(homePitcher?.id, date),
   detailedStatus: g.status?.detailedState || "",
   inning: g.linescore?.currentInningOrdinal || "",
   venue: g.venue?.name || "",
+
+    return {
+  id: g.gamePk,
+  date,
+  away,
+  home,
+  awayScore: g.teams?.away?.score ?? 0,
+  homeScore: g.teams?.home?.score ?? 0,
+  status,
+  detailedStatus: g.status?.detailedState || "",
+  inning: g.linescore?.currentInningOrdinal || "",
+  venue: g.venue?.name || "",
+
+  gameDate: g.gameDate || "",
+
   awayProbable: awayPitcher?.fullName || "未発表",
   homeProbable: homePitcher?.fullName || "未発表",
+    
   awayMetrics: metricsFor(away),
   homeMetrics: metricsFor(home),
   awayPitcherMetrics,
