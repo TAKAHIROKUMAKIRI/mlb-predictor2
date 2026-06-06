@@ -455,6 +455,98 @@ async function fetchPitcherMetrics(playerId?: number) {
   }
 }
 
+async function fetchRecentPitcherForm(playerId?: number, referenceDate?: string) {
+  if (!playerId) {
+    return {
+      games: 0,
+      era: null,
+      whip: null,
+      k9: null,
+      innings: 0,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const season = end.getFullYear();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats` +
+      `?stats=gameLog&group=pitching&season=${season}`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("recent pitcher form fetch failed");
+
+    const data = await res.json();
+
+    const splits = data.stats?.[0]?.splits || [];
+
+    const recent = splits
+      .filter((s: any) => {
+        const d = new Date(s.date);
+        return d < end;
+      })
+      .slice(-5);
+
+    let innings = 0;
+    let earnedRuns = 0;
+    let walks = 0;
+    let hits = 0;
+    let strikeouts = 0;
+
+    for (const s of recent) {
+      const stat = s.stat || {};
+
+      innings += parseInnings(stat.inningsPitched);
+      earnedRuns += Number(stat.earnedRuns || 0);
+      walks += Number(stat.baseOnBalls || 0);
+      hits += Number(stat.hits || 0);
+      strikeouts += Number(stat.strikeOuts || 0);
+    }
+
+    const era = innings > 0 ? (earnedRuns * 9) / innings : null;
+    const whip = innings > 0 ? (walks + hits) / innings : null;
+    const k9 = innings > 0 ? (strikeouts * 9) / innings : null;
+
+    let bonus = 0;
+
+    if (era !== null) {
+      if (era <= 2.8) bonus += 3;
+      else if (era <= 3.5) bonus += 1.5;
+      else if (era >= 5.0) bonus -= 3;
+    }
+
+    if (whip !== null) {
+      if (whip <= 1.05) bonus += 2;
+      else if (whip >= 1.4) bonus -= 2;
+    }
+
+    return {
+      games: recent.length,
+      era: era === null ? null : Number(era.toFixed(2)),
+      whip: whip === null ? null : Number(whip.toFixed(2)),
+      k9: k9 === null ? null : Number(k9.toFixed(1)),
+      innings: Number(innings.toFixed(1)),
+      bonus: Math.max(-5, Math.min(5, bonus)),
+    };
+  } catch (e) {
+    return {
+      games: 0,
+      era: null,
+      whip: null,
+      k9: null,
+      innings: 0,
+      bonus: 0,
+    };
+  }
+}
+
 async function fetchHeadToHead(
   awayTeamId?: number,
   homeTeamId?: number
