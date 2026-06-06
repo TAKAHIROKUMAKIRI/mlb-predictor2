@@ -929,6 +929,9 @@ return (
     <ul>
       {reasons.map((reason, idx) => (
         <li key={idx}>{reason}</li>
+
+                  <li>試合開始：{formatGameTime(game.gameDate)}</li>
+                  
       ))}
     </ul>
   </li>
