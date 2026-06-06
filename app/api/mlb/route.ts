@@ -533,7 +533,7 @@ async function fetchRecentPitcherForm(playerId?: number, referenceDate?: string)
       whip: whip === null ? null : Number(whip.toFixed(2)),
       k9: k9 === null ? null : Number(k9.toFixed(1)),
       innings: Number(innings.toFixed(1)),
-      bonus: Math.max(-5, Math.min(5, bonus)),
+      bonus: Math.max(-3, Math.min(3, bonus)),
     };
   } catch (e) {
     return {
