@@ -142,6 +142,42 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return Math.max(-12, Math.min(12, score));
 }
 
+function metricsFor(teamName?: string) {
+  const data: Record<string, any> = {
+    "Seattle Mariners": { ops: 0.714, woba: 0.316, wraa: -1.2, wrc: 99, fip: 3.5, uzr: 8.4 },
+    "Detroit Tigers": { ops: 0.706, woba: 0.311, wraa: -4.1, wrc: 96, fip: 3.9, uzr: 3.2 },
+    "Miami Marlins": { ops: 0.672, woba: 0.296, wraa: -20.4, wrc: 84, fip: 4.3, uzr: -1.9 },
+    "Washington Nationals": { ops: 0.684, woba: 0.298, wraa: -18.4, wrc: 88, fip: 4.4, uzr: -3.3 },
+    "Los Angeles Dodgers": { ops: 0.781, woba: 0.348, wraa: 42.5, wrc: 129, fip: 3.6, uzr: 3.4 },
+    "Arizona Diamondbacks": { ops: 0.740, woba: 0.326, wraa: 9.6, wrc: 106, fip: 4.2, uzr: 1.3 },
+    "New York Mets": { ops: 0.734, woba: 0.321, wraa: 6.2, wrc: 104, fip: 3.9, uzr: -0.9 },
+    "Houston Astros": { ops: 0.755, woba: 0.332, wraa: 20.1, wrc: 116, fip: 3.6, uzr: 3.9 },
+    "New York Yankees": { ops: 0.761, woba: 0.336, wraa: 28.4, wrc: 122, fip: 3.7, uzr: 5.8 },
+    "Philadelphia Phillies": { ops: 0.759, woba: 0.334, wraa: 22.4, wrc: 118, fip: 3.7, uzr: 1.1 },
+    "Chicago Cubs": { ops: 0.773, woba: 0.341, wraa: 31.8, wrc: 126, fip: 3.5, uzr: 4.1 },
+    "San Francisco Giants": { ops: 0.711, woba: 0.314, wraa: -2.1, wrc: 97, fip: 4.1, uzr: 1.6 },
+    "Milwaukee Brewers": { ops: 0.734, woba: 0.322, wraa: 6.8, wrc: 105, fip: 3.8, uzr: 4.8 },
+    "Texas Rangers": { ops: 0.705, woba: 0.310, wraa: -4.6, wrc: 95, fip: 4.0, uzr: 0.4 },
+    "St. Louis Cardinals": { ops: 0.725, woba: 0.319, wraa: 2.1, wrc: 101, fip: 4.2, uzr: -0.6 },
+    "Boston Red Sox": { ops: 0.742, woba: 0.325, wraa: 10.2, wrc: 108, fip: 4.0, uzr: -1.2 },
+    "Toronto Blue Jays": { ops: 0.711, woba: 0.313, wraa: -2.9, wrc: 96, fip: 4.1, uzr: -2.1 },
+    "Cincinnati Reds": { ops: 0.711, woba: 0.313, wraa: -2.9, wrc: 96, fip: 4.1, uzr: -2.1 },
+    "Minnesota Twins": { ops: 0.728, woba: 0.320, wraa: 3.9, wrc: 102, fip: 4.0, uzr: 1.7 },
+    "Chicago White Sox": { ops: 0.631, woba: 0.279, wraa: -35.2, wrc: 75, fip: 4.7, uzr: -6.4 },
+  };
+
+  return (
+    data[teamName || ""] || {
+      ops: 0.700,
+      woba: 0.310,
+      wraa: 0,
+      wrc: 100,
+      fip: 4.2,
+      uzr: 0,
+    }
+  );
+}
+
 function recentFormBonus(form?: any) {
   return form?.bonus || 0;
 }
