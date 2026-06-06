@@ -478,6 +478,21 @@ async function normalizeBacktestGame(g: any) {
   const awayTeamId = g.teams?.away?.team?.id;
   const homeTeamId = g.teams?.home?.team?.id;
 
+    const awayPitcher = g.teams?.away?.probablePitcher;
+  const homePitcher = g.teams?.home?.probablePitcher;
+
+  const awayPitcherMetrics =
+    await fetchPitcherMetrics(
+      awayPitcher?.id,
+      g.gameDate
+    );
+
+  const homePitcherMetrics =
+    await fetchPitcherMetrics(
+      homePitcher?.id,
+      g.gameDate
+    );
+  
   const awayRecentForm = await fetchRecentForm(awayTeamId, g.gameDate);
   const homeRecentForm = await fetchRecentForm(homeTeamId, g.gameDate);
 
@@ -511,8 +526,8 @@ const homeHomeRecord =
     awayMetrics: metricsFor(away),
     homeMetrics: metricsFor(home),
 
-    awayPitcherMetrics: null,
-    homePitcherMetrics: null,
+    awayPitcherMetrics,
+homePitcherMetrics,
 
     awayBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
     homeBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
