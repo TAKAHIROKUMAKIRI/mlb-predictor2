@@ -336,6 +336,93 @@ async function fetchHomeAwayRecord(
   }
 }
 
+function parseInnings(ip: any) {
+  if (!ip) return 0;
+
+  const raw = String(ip);
+
+  if (!raw.includes(".")) {
+    return Number(raw) || 0;
+  }
+
+  const [whole, fraction] = raw.split(".");
+  const outs = Number(fraction) || 0;
+
+  return (Number(whole) || 0) + outs / 3;
+}
+
+function calcFip(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+  if (!ip) return null;
+
+  const hr = Number(stat?.homeRuns || 0);
+  const bb = Number(stat?.baseOnBalls || 0);
+  const hbp = Number(stat?.hitBatsmen || 0);
+  const k = Number(stat?.strikeOuts || 0);
+
+  return Number(
+    (((13 * hr + 3 * (bb + hbp) - 2 * k) / ip) + 3.1).toFixed(2)
+  );
+}
+
+function calcK9(stat: any) {
+  const ip = parseInnings(stat?.inningsPitched);
+  const k = Number(stat?.strikeOuts || 0);
+
+  if (!ip) return null;
+
+  return Number(((k * 9) / ip).toFixed(1));
+}
+
+async function fetchPitcherMetrics(playerId?: number, referenceDate?: string) {
+  if (!playerId) {
+    return {
+      era: null,
+      fip: null,
+      whip: null,
+      k9: null,
+    };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    const season = end.getFullYear();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats` +
+      `?stats=season&group=pitching&season=${season}`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("pitcher metrics fetch failed");
+
+    const data = await res.json();
+    const stat = data.stats?.[0]?.splits?.[0]?.stat || null;
+
+    if (!stat) {
+      return {
+        era: null,
+        fip: null,
+        whip: null,
+        k9: null,
+      };
+    }
+
+    return {
+      era: stat.era ? Number(stat.era) : null,
+      fip: calcFip(stat),
+      whip: stat.whip ? Number(stat.whip) : null,
+      k9: calcK9(stat),
+    };
+  } catch {
+    return {
+      era: null,
+      fip: null,
+      whip: null,
+      k9: null,
+    };
+  }
+}
+
 function recentFormBonus(form?: any) {
   return form?.bonus || 0;
 }
