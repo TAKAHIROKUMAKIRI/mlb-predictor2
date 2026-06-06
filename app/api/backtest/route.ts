@@ -44,10 +44,10 @@ const normalizedGames = await Promise.all(
 let correct = 0;
 
 const games = normalizedGames.map((g) => {
-      const away = g.teams?.away?.team?.name;
-      const home = g.teams?.home?.team?.name;
-      const awayScore = g.teams?.away?.score ?? 0;
-      const homeScore = g.teams?.home?.score ?? 0;
+      const away = g.away;
+const home = g.home;
+const awayScore = g.awayScore;
+const homeScore = g.homeScore;
 
       const winner = awayScore > homeScore ? away : home;
 
