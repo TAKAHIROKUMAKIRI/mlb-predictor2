@@ -50,12 +50,12 @@ export async function GET() {
       // 仮ロジック：ホームチームを予想勝者にする
       // 次ステップで現在の勝率ロジックを移植します
       const prob =
-  backtestWinProbability(game);
+  backtestWinProbability(g);
 
 const predicted =
   prob.away > prob.home
-    ? game.away
-    : game.home;
+    ? g.away
+    : g.home;
 
       return {
         date: g.gameDate,
