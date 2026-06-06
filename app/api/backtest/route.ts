@@ -279,9 +279,12 @@ async function fetchHomeAwayRecord(
     const end = referenceDate ? new Date(referenceDate) : new Date();
     end.setDate(end.getDate() - 1);
 
+    const season = end.getFullYear();
+    const start = new Date(`${season}-03-01`);
+
     const url =
       `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
-      `&season=${end.getFullYear()}` +
+      `&startDate=${start.toISOString().slice(0, 10)}` +
       `&endDate=${end.toISOString().slice(0, 10)}` +
       `&gameType=R`;
 
@@ -301,12 +304,8 @@ async function fetchHomeAwayRecord(
         const awayScore = g.teams?.away?.score ?? 0;
         const homeScore = g.teams?.home?.score ?? 0;
 
-        const target =
-          type === "home"
-            ? homeId === teamId
-            : awayId === teamId;
-
-        if (!target) continue;
+        if (type === "home" && homeId !== teamId) continue;
+        if (type === "away" && awayId !== teamId) continue;
 
         const won =
           type === "home"
@@ -324,8 +323,8 @@ async function fetchHomeAwayRecord(
     return {
       wins,
       losses,
-      winPct,
-      bonus: (winPct - 0.5) * 8,
+      winPct: Number(winPct.toFixed(3)),
+      bonus: Number(((winPct - 0.5) * 8).toFixed(1)),
     };
   } catch {
     return {
