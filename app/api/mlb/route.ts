@@ -551,99 +551,89 @@ async function fetchHeadToHead(
   awayTeamId?: number,
   homeTeamId?: number
 ) {
-  return {
-    awayWins: 0,
-    homeWins: 0,
-    totalGames: 0,
-    bonus: 0,
-  };
-}
-async function normalizeGame(g: any, date: string) {
-  const away = g.teams?.away?.team?.name || "Away";
-  const home = g.teams?.home?.team?.name || "Home";
+  if (!awayTeamId || !homeTeamId) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
 
-const awayTeamId = g.teams?.away?.team?.id;
-const homeTeamId = g.teams?.home?.team?.id;
-  
-  const awayPitcher = g.teams?.away?.probablePitcher;
-  const homePitcher = g.teams?.home?.probablePitcher;
+  try {
+    const season = currentSeason();
 
-  const abstract = g.status?.abstractGameState || "Preview";
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule` +
+      `?sportId=1` +
+      `&season=${season}` +
+      `&teamId=${awayTeamId}` +
+      `&gameType=R`;
 
-  const status =
-    abstract === "Live"
-      ? "LIVE"
-      : abstract === "Final"
-        ? "FINAL"
-        : "SCHEDULED";
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
 
-  const [
-  awayPitcherMetrics,
-  homePitcherMetrics,
-  awayBullpen,
-  homeBullpen,
-  headToHead,
-  awayRecentForm,
-  homeRecentForm,
-  awayRoadRecord,
-  homeHomeRecord,
-    awayRecentPitcherForm,
-homeRecentPitcherForm,
-] = await Promise.all([
-  fetchPitcherMetrics(awayPitcher?.id),
-  fetchPitcherMetrics(homePitcher?.id),
-  fetchBullpenFatigue(awayTeamId, date),
-  fetchBullpenFatigue(homeTeamId, date),
-  fetchHeadToHead(awayTeamId, homeTeamId),
-  fetchRecentForm(awayTeamId, date),
-  fetchRecentForm(homeTeamId, date),
-  fetchHomeAwayRecord(awayTeamId, "away", date),
-  fetchHomeAwayRecord(homeTeamId, "home", date),
-    fetchRecentPitcherForm(awayPitcher?.id, date),
-fetchRecentPitcherForm(homePitcher?.id, date),
-]);
+    const data = await res.json();
 
-  return {
-  id: g.gamePk,
-  date,
-  away,
-  home,
-  awayScore: g.teams?.away?.score ?? 0,
-  homeScore: g.teams?.home?.score ?? 0,
-  status,
-  detailedStatus: g.status?.detailedState || "",
-  inning: g.linescore?.currentInningOrdinal || "",
-  venue: g.venue?.name || "",
-  gameDate: g.gameDate || "",
+    let awayWins = 0;
+    let homeWins = 0;
 
-  awayProbable: awayPitcher?.fullName || "未発表",
-  homeProbable: homePitcher?.fullName || "未発表",
-    
-  awayMetrics: metricsFor(away),
-  homeMetrics: metricsFor(home),
-  awayPitcherMetrics,
-homePitcherMetrics,
-awayBullpen,
-homeBullpen,
-awayRecentForm,
-homeRecentForm,
-    awayRecentPitcherForm,
-homeRecentPitcherForm,
-    awayRoadRecord,
-homeHomeRecord,
-headToHead: headToHead ?? {
-  awayWins: 0,
-  homeWins: 0,
-  totalGames: 0,
-  bonus: 0,
-},
-debugHeadToHead: headToHead ?? {
-  awayWins: 0,
-  homeWins: 0,
-  totalGames: 0,
-  bonus: 0,
-},
-  };
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        const awayId = g.teams?.away?.team?.id;
+        const homeId = g.teams?.home?.team?.id;
+
+        const isMatchup =
+          (awayId === awayTeamId &&
+            homeId === homeTeamId) ||
+          (awayId === homeTeamId &&
+            homeId === awayTeamId);
+
+        if (!isMatchup) continue;
+
+        if (
+          g.status?.abstractGameState !== "Final"
+        ) {
+          continue;
+        }
+
+        const awayScore =
+          g.teams?.away?.score ?? 0;
+
+        const homeScore =
+          g.teams?.home?.score ?? 0;
+
+        if (awayId === awayTeamId) {
+          if (awayScore > homeScore) awayWins++;
+          else homeWins++;
+        } else {
+          if (homeScore > awayScore) awayWins++;
+          else homeWins++;
+        }
+      }
+    }
+
+    const totalGames =
+      awayWins + homeWins;
+
+    const bonus =
+      (awayWins - homeWins) * 0.5;
+
+    return {
+      awayWins,
+      homeWins,
+      totalGames,
+      bonus,
+    };
+  } catch (e) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
 }
 
 async function fetchScheduleByDate(date: string) {
