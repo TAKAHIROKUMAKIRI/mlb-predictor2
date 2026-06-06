@@ -901,12 +901,9 @@ return (
 
                   <ul style={{ color: "#cbd5e1", lineHeight: 1.8, margin: 0 }}>
   <li>試合状況：{game.detailedStatus}</li>
-
-  <li>球場：{game.venue}</li>
-
-  <li>
-    スコア：{game.awayScore} - {game.homeScore}
-  </li>
+<li>試合開始：{formatGameTime(game.gameDate)}</li>
+<li>球場：{game.venue}</li>
+<li>スコア：{game.awayScore} - {game.homeScore}</li>
 
                     <li>信頼度：{confidence}</li>
                     
@@ -929,9 +926,7 @@ return (
     <ul>
       {reasons.map((reason, idx) => (
         <li key={idx}>{reason}</li>
-
-                  <li>試合開始：{formatGameTime(game.gameDate)}</li>
-                  
+                 
       ))}
     </ul>
   </li>
