@@ -87,3 +87,39 @@ export async function GET() {
     );
   }
 }
+
+function backtestWinProbability(game: any) {
+  const parkAdjustment = PARK_FACTOR[game.venue] || 0;
+  const homeAdv = homeAdvantageFor(game.venue) || 2.5;
+
+  let away =
+    50 +
+    (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
+    (recentFormBonus(game.awayRecentForm) || 0) +
+    (homeAwayBonus(game.awayRoadRecord) || 0) +
+    (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
+    (matchupBonus(game) || 0) +
+    (game.headToHead?.bonus || 0) +
+    (game.awayRecentPitcherForm?.bonus ?? 0) -
+    (
+      (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
+      (recentFormBonus(game.homeRecentForm) || 0) +
+      (homeAwayBonus(game.homeHomeRecord) || 0) +
+      (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
+      (game.homeRecentPitcherForm?.bonus ?? 0) +
+      homeAdv
+    );
+
+  away -= parkAdjustment;
+
+  if (!Number.isFinite(away)) {
+    away = 50;
+  }
+
+  away = Math.round(Math.max(3, Math.min(97, away)));
+
+  return {
+    away,
+    home: 100 - away,
+  };
+}
