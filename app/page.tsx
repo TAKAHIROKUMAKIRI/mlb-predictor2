@@ -605,20 +605,33 @@ export default function Page() {
   }, []);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+  const q = query.trim().toLowerCase();
 
-    return games.filter((g) => {
-      const matchTab = tab === "ALL" || g.status === tab;
+  return games.filter((g) => {
+    const status = String(g.status || "").toUpperCase();
 
-      const matchQuery =
-        !q ||
-        `${g.away} ${g.home} ${g.awayProbable} ${g.homeProbable}`
-          .toLowerCase()
-          .includes(q);
+    const matchTab =
+      tab === "ALL" ||
+      (tab === "LIVE" && status === "LIVE") ||
+      (tab === "SCHEDULED" && status === "SCHEDULED") ||
+      (
+        tab === "FINAL" &&
+        (
+          status === "FINAL" ||
+          status === "FINISHED" ||
+          status === "GAME_OVER"
+        )
+      );
 
-      return matchTab && matchQuery;
-    });
-  }, [games, tab, query]);
+    const matchQuery =
+      !q ||
+      `${g.away} ${g.home} ${g.awayProbable} ${g.homeProbable}`
+        .toLowerCase()
+        .includes(q);
+
+    return matchTab && matchQuery;
+  });
+}, [games, tab, query]);
 
   const liveCount = games.filter((g) => g.status === "LIVE").length;
 
