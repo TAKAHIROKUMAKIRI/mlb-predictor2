@@ -37,9 +37,13 @@ export async function GET() {
 
     const last30 = finals.slice(-30);
 
-    let correct = 0;
+const normalizedGames = await Promise.all(
+  last30.map((g) => normalizeBacktestGame(g))
+);
 
-    const games = last30.map((g) => {
+let correct = 0;
+
+const games = normalizedGames.map((g) => {
       const away = g.teams?.away?.team?.name;
       const home = g.teams?.home?.team?.name;
       const awayScore = g.teams?.away?.score ?? 0;
