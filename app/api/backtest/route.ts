@@ -94,6 +94,23 @@ return {
   }
 }
 
+const PARK_FACTOR: Record<string, number> = {
+  "Coors Field": 2,
+  "Great American Ball Park": 1.2,
+  "Yankee Stadium": 0.8,
+  "Fenway Park": 0.6,
+  "Chase Field": 0.5,
+  "T-Mobile Park": -1,
+  "Oracle Park": -0.8,
+  "Petco Park": -0.8,
+  "Comerica Park": -0.5,
+  "Dodger Stadium": -0.3,
+};
+
+function homeAdvantageFor(venue?: string) {
+  return 2.5;
+}
+
 function backtestWinProbability(game: any) {
   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
