@@ -226,7 +226,7 @@ function winProbability(game: any) {
   (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
   (matchupBonus(game) || 0) +
   (game.headToHead?.bonus || 0) -
-    (game.awayRecentPitcherForm?.bonus || 0)+
+    (game.awayRecentPitcherForm?.bonus ?? 0)+
   (
     (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
     (recentFormBonus(game.homeRecentForm) || 0) +
