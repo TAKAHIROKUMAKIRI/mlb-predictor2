@@ -120,18 +120,14 @@ let hits = 0;
           const pitching = player?.stats?.pitching;
           if (!pitching) continue;
 
-          const inningsText = String(pitching.inningsPitched || "0");
-          const gamesPitched = Number(pitching.gamesPlayed || 0);
+          const gamesStarted = Number(pitching.gamesStarted || 0);
+const numberOfPitches = Number(pitching.numberOfPitches || 0);
+const ip = parseInnings(pitching.inningsPitched);
 
-const numberOfPitches =
-  Number(pitching.numberOfPitches || 0);
-
-          const ip =
-  parseFloat(
-    String(
-      pitching.inningsPitched || 0
-    )
-  ) || 0;
+// 先発投手は除外
+if (gamesStarted > 0) {
+  continue;
+}
 
 innings += ip;
 
