@@ -473,6 +473,31 @@ function homeAdvantageFor(venue?: string) {
   return 2.5;
 }
 
+async function fetchStartingPitchers(gamePk: number) {
+  try {
+    const url =
+      `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("boxscore fetch failed");
+
+    const data = await res.json();
+
+    const awayPitchers = data.teams?.away?.pitchers || [];
+    const homePitchers = data.teams?.home?.pitchers || [];
+
+    return {
+      awayPitcherId: awayPitchers[0],
+      homePitcherId: homePitchers[0],
+    };
+  } catch {
+    return {
+      awayPitcherId: undefined,
+      homePitcherId: undefined,
+    };
+  }
+}
+
 async function normalizeBacktestGame(g: any) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
@@ -492,20 +517,20 @@ async function normalizeBacktestGame(g: any) {
     g.teams?.home?.probablePitcher
   );
   
-    const awayPitcher = g.teams?.away?.probablePitcher;
-  const homePitcher = g.teams?.home?.probablePitcher;
+    const starters =
+  await fetchStartingPitchers(g.gamePk);
 
-  const awayPitcherMetrics =
-    await fetchPitcherMetrics(
-      awayPitcher?.id,
-      g.gameDate
-    );
+const awayPitcherMetrics =
+  await fetchPitcherMetrics(
+    starters.awayPitcherId,
+    g.gameDate
+  );
 
-  const homePitcherMetrics =
-    await fetchPitcherMetrics(
-      homePitcher?.id,
-      g.gameDate
-    );
+const homePitcherMetrics =
+  await fetchPitcherMetrics(
+    starters.homePitcherId,
+    g.gameDate
+  );
   
   const awayRecentForm = await fetchRecentForm(awayTeamId, g.gameDate);
   const homeRecentForm = await fetchRecentForm(homeTeamId, g.gameDate);
