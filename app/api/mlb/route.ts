@@ -517,9 +517,9 @@ async function fetchRecentPitcherForm(playerId?: number, referenceDate?: string)
     let bonus = 0;
 
     if (era !== null) {
-      if (era <= 2.8) bonus += 3;
-      else if (era <= 3.5) bonus += 1.5;
-      else if (era >= 5.0) bonus -= 3;
+      if (era <= 2.8) bonus += 2;
+else if (era <= 3.5) bonus += 1;
+else if (era >= 5.0) bonus -= 2;
     }
 
     if (whip !== null) {
