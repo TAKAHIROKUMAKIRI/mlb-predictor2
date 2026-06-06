@@ -587,6 +587,8 @@ const homeTeamId = g.teams?.home?.team?.id;
   homeRecentForm,
   awayRoadRecord,
   homeHomeRecord,
+    awayRecentPitcherForm,
+homeRecentPitcherForm,
 ] = await Promise.all([
   fetchPitcherMetrics(awayPitcher?.id),
   fetchPitcherMetrics(homePitcher?.id),
@@ -597,6 +599,8 @@ const homeTeamId = g.teams?.home?.team?.id;
   fetchRecentForm(homeTeamId, date),
   fetchHomeAwayRecord(awayTeamId, "away", date),
   fetchHomeAwayRecord(homeTeamId, "home", date),
+    fetchRecentPitcherForm(awayPitcher?.id, date),
+fetchRecentPitcherForm(homePitcher?.id, date),
 ]);
 
   return {
@@ -620,6 +624,8 @@ awayBullpen,
 homeBullpen,
 awayRecentForm,
 homeRecentForm,
+    awayRecentPitcherForm,
+homeRecentPitcherForm,
     awayRoadRecord,
 homeHomeRecord,
 headToHead: headToHead ?? {
