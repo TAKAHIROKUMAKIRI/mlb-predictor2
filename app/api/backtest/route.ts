@@ -390,6 +390,20 @@ async function normalizeBacktestGame(g: any) {
   const awayRecentForm = await fetchRecentForm(awayTeamId, g.gameDate);
   const homeRecentForm = await fetchRecentForm(homeTeamId, g.gameDate);
 
+  const awayRoadRecord =
+  await fetchHomeAwayRecord(
+    awayTeamId,
+    "away",
+    g.gameDate
+  );
+
+const homeHomeRecord =
+  await fetchHomeAwayRecord(
+    homeTeamId,
+    "home",
+    g.gameDate
+  );
+  
   return {
     id: g.gamePk,
     date: g.gameDate,
@@ -415,8 +429,8 @@ async function normalizeBacktestGame(g: any) {
     awayRecentForm,
     homeRecentForm,
 
-    awayRoadRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
-    homeHomeRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
+    awayRoadRecord,
+homeHomeRecord,
 
     headToHead: { awayWins: 0, homeWins: 0, totalGames: 0, bonus: 0 },
 
