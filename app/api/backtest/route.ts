@@ -73,6 +73,11 @@ return {
   winner,
   predicted,
   hit,
+  prob,
+  awayRecentForm: g.awayRecentForm,
+  homeRecentForm: g.homeRecentForm,
+  awayRoadRecord: g.awayRoadRecord,
+  homeHomeRecord: g.homeHomeRecord,
 };
     });
 
