@@ -225,14 +225,14 @@ function winProbability(game: any) {
   (homeAwayBonus(game.awayRoadRecord) || 0) +
   (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
   (matchupBonus(game) || 0) +
-  (game.headToHead?.bonus || 0) -
-    (game.awayRecentPitcherForm?.bonus ?? 0)+
+  (game.headToHead?.bonus || 0) +
+  (game.awayRecentPitcherForm?.bonus ?? 0) -
   (
     (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
     (recentFormBonus(game.homeRecentForm) || 0) +
     (homeAwayBonus(game.homeHomeRecord) || 0) +
     (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
-(game.homeRecentPitcherForm?.bonus ?? 0)+
+    (game.homeRecentPitcherForm?.bonus ?? 0) +
     homeAdv
   );
 
