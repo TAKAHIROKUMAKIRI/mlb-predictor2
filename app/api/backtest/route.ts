@@ -53,8 +53,8 @@ export async function GET() {
 
 const predicted =
   prob.away > prob.home
-    ? g.away
-    : g.home;
+    ? away
+    : home;
 
 const hit = predicted === winner;
 
