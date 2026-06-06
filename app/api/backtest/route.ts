@@ -480,6 +480,18 @@ async function normalizeBacktestGame(g: any) {
   const awayTeamId = g.teams?.away?.team?.id;
   const homeTeamId = g.teams?.home?.team?.id;
 
+    console.log(
+    "AWAY",
+    away,
+    g.teams?.away?.probablePitcher
+  );
+
+  console.log(
+    "HOME",
+    home,
+    g.teams?.home?.probablePitcher
+  );
+  
     const awayPitcher = g.teams?.away?.probablePitcher;
   const homePitcher = g.teams?.home?.probablePitcher;
 
