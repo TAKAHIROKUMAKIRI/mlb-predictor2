@@ -178,6 +178,84 @@ function metricsFor(teamName?: string) {
   );
 }
 
+async function fetchRecentForm(teamId?: number, referenceDate?: string) {
+  if (!teamId) {
+    return { wins: 0, losses: 0, games: 0, opponentStrength: 0, bonus: 0 };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const start = new Date(end);
+    start.setDate(start.getDate() - 30);
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
+      `&startDate=${start.toISOString().slice(0, 10)}` +
+      `&endDate=${end.toISOString().slice(0, 10)}` +
+      `&gameType=R`;
+
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("recent form fetch failed");
+
+    const data = await res.json();
+    const finals: any[] = [];
+
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        if (g.status?.abstractGameState === "Final") {
+          finals.push(g);
+        }
+      }
+    }
+
+    const last5 = finals.slice(-5);
+
+    let wins = 0;
+    let losses = 0;
+    let opponentStrength = 0;
+
+    for (const g of last5) {
+      const awayId = g.teams?.away?.team?.id;
+      const homeId = g.teams?.home?.team?.id;
+      const awayName = g.teams?.away?.team?.name;
+      const homeName = g.teams?.home?.team?.name;
+      const awayScore = g.teams?.away?.score ?? 0;
+      const homeScore = g.teams?.home?.score ?? 0;
+
+      const isAway = teamId === awayId;
+      const opponentName = isAway ? homeName : awayName;
+
+      const won = isAway
+        ? awayScore > homeScore
+        : homeScore > awayScore;
+
+      if (won) wins += 1;
+      else losses += 1;
+
+      const opponentMetrics = metricsFor(opponentName);
+
+      opponentStrength +=
+        (opponentMetrics.wrc - 100) * 0.03 +
+        (4.2 - opponentMetrics.fip) * 0.8;
+    }
+
+    const formBonus = (wins - losses) * 1.2;
+    const opponentBonus = opponentStrength * 0.25;
+
+    return {
+      wins,
+      losses,
+      games: last5.length,
+      opponentStrength: Number(opponentStrength.toFixed(1)),
+      bonus: Math.max(-5, Math.min(5, formBonus + opponentBonus)),
+    };
+  } catch (e) {
+    return { wins: 0, losses: 0, games: 0, opponentStrength: 0, bonus: 0 };
+  }
+}
+
 function recentFormBonus(form?: any) {
   return form?.bonus || 0;
 }
