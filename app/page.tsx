@@ -232,7 +232,7 @@ function winProbability(game: any) {
     (recentFormBonus(game.homeRecentForm) || 0) +
     (homeAwayBonus(game.homeHomeRecord) || 0) +
     (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
-    (game.homeRecentPitcherForm?.bonus || 0)
+(game.homeRecentPitcherForm?.bonus || 0) +
     homeAdv
   );
 
