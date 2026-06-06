@@ -337,6 +337,18 @@ const TEAM_LOGOS: Record<string, string> = {
   "Washington Nationals": "https://www.mlbstatic.com/team-logos/120.svg",
 };
 
+function formatGameTime(gameDate?: string) {
+  if (!gameDate) return "未定";
+
+  return new Date(gameDate).toLocaleString("ja-JP", {
+    timeZone: "Asia/Tokyo",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function teamLogo(team: string) {
   return TEAM_LOGOS[team] || "";
 }
