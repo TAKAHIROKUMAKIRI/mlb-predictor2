@@ -186,6 +186,46 @@ function homeAdvantageFor(venue?: string) {
   return 2.5;
 }
 
+async function normalizeBacktestGame(g: any) {
+  const away = g.teams?.away?.team?.name || "Away";
+  const home = g.teams?.home?.team?.name || "Home";
+
+  return {
+    id: g.gamePk,
+    date: g.gameDate,
+    gameDate: g.gameDate || "",
+    away,
+    home,
+    awayScore: g.teams?.away?.score ?? 0,
+    homeScore: g.teams?.home?.score ?? 0,
+
+    // FINAL扱いにすると実結果100%になるので、予想用はSCHEDULED扱い
+    status: "SCHEDULED",
+
+    venue: g.venue?.name || "",
+
+    awayMetrics: metricsFor(away),
+    homeMetrics: metricsFor(home),
+
+    awayPitcherMetrics: null,
+    homePitcherMetrics: null,
+
+    awayBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
+    homeBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
+
+    awayRecentForm: { wins: 0, losses: 0, games: 0, bonus: 0 },
+    homeRecentForm: { wins: 0, losses: 0, games: 0, bonus: 0 },
+
+    awayRoadRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
+    homeHomeRecord: { wins: 0, losses: 0, winPct: 0.5, bonus: 0 },
+
+    headToHead: { awayWins: 0, homeWins: 0, totalGames: 0, bonus: 0 },
+
+    awayRecentPitcherForm: { bonus: 0 },
+    homeRecentPitcherForm: { bonus: 0 },
+  };
+}
+
 function backtestWinProbability(game: any) {
   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
