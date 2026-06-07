@@ -521,7 +521,7 @@ function TeamBlock({
           >
             勝率 {probability}%
           </div>
-          {game.status === "LIVE" && (
+          {status === "LIVE" && (
   <div
     style={{
       marginTop: 8,
