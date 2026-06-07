@@ -640,7 +640,8 @@ export default function Page() {
     <main
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg,#f1f5f9,#ffffff,#e2e8f0)",
+        background:
+"linear-gradient(180deg,#F8FAFC 0%,#EEF2F7 100%)",
         color: "#0f172a",
         padding: 16,
         fontFamily:
@@ -649,9 +650,10 @@ export default function Page() {
     >
       <div style={{ maxWidth: 1280, margin: "0 auto" }}>
         <section
-          style={{
-            background: "#020617",
-            color: "#ffffff",
+  style={{
+    background:
+      "linear-gradient(135deg,#041E42 0%,#0A2A5E 70%,#BF0D3E 100%)",
+    color: "#ffffff",
             borderRadius: 28,
             padding: 24,
             marginBottom: 16,
@@ -668,8 +670,9 @@ export default function Page() {
               <div
                 style={{
                   display: "inline-block",
-                  background: "rgba(255,255,255,0.1)",
-                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.18)",
+border: "1px solid rgba(255,255,255,0.2)",
+fontWeight: 700,
                   padding: "7px 12px",
                   fontSize: 14,
                   marginBottom: 12,
@@ -684,6 +687,7 @@ export default function Page() {
                   fontSize: "clamp(28px,5vw,52px)",
                   lineHeight: 1.1,
                   letterSpacing: "-0.04em",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.25)",
                 }}
               >
                 MLB速報・勝敗確率ダッシュボード
@@ -691,7 +695,7 @@ export default function Page() {
 
               <p
                 style={{
-                  color: "#cbd5e1",
+                  color: "#E2E8F0",
                   lineHeight: 1.8,
                   maxWidth: 820,
                 }}
@@ -717,7 +721,9 @@ export default function Page() {
                 <div
                   key={label}
                   style={{
-                    background: "rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.12)",
+backdropFilter: "blur(6px)",
+border: "1px solid rgba(255,255,255,0.15)",
                     borderRadius: 16,
                     padding: 12,
                     textAlign: "center",
