@@ -63,6 +63,13 @@ const predicted =
 
 const hit = predicted === winner;
 
+  const maxProb = Math.max(prob.away, prob.home);
+
+if (maxProb >= 70) {
+  highConfidenceTotal += 1;
+  if (hit) highConfidenceCorrect += 1;
+}
+  
 if (hit) correct += 1;
 
 return {
