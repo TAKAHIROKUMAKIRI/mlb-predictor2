@@ -574,6 +574,23 @@ export default function Page() {
   const [error, setError] = useState("");
 const [backtest, setBacktest] = useState<any>(null);
 const [backtestLoading, setBacktestLoading] = useState(false);
+
+  async function runBacktest() {
+  setBacktestLoading(true);
+
+  try {
+    const res = await fetch("/api/backtest", {
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+    setBacktest(data);
+  } catch (e) {
+    setBacktest({ ok: false });
+  } finally {
+    setBacktestLoading(false);
+  }
+}
   
   async function loadGames() {
     setLoading(true);
