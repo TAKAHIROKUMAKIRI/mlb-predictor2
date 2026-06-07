@@ -524,14 +524,13 @@ function TeamBlock({
           {status === "LIVE" && (
   <div
     style={{
-      marginTop: 8,
+      marginTop: 6,
       fontSize: 12,
       color: "#64748b",
+      fontWeight: 600,
     }}
   >
-    試合前予想：
-    {pregame.away}% -
-    {pregame.home}%
+    試合前予想：{pregameProbability}%
   </div>
 )}
         </div>
