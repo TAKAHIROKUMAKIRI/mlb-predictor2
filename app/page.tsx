@@ -953,7 +953,7 @@ return (
                     gap: 14,
                   }}
                 >
-                  <TeamBlock
+                 
   <TeamBlock
   side="Away"
   name={game.away}
@@ -968,7 +968,7 @@ return (
   status={game.status}
 />
 
-                  <TeamBlock
+                
   <TeamBlock
   side="Home"
   name={game.home}
