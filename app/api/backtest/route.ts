@@ -92,16 +92,25 @@ return {
     });
 
     return NextResponse.json({
-      ok: true,
-      target: "last30FinalGames",
-      total: games.length,
-      correct,
-      accuracy:
-        games.length > 0
-          ? Number(((correct / games.length) * 100).toFixed(1))
-          : 0,
-      games,
-    });
+  ok: true,
+  target: "last30FinalGames",
+  total: games.length,
+  correct,
+  accuracy:
+    games.length > 0
+      ? Number(((correct / games.length) * 100).toFixed(1))
+      : 0,
+  highConfidence70: {
+    total: highConfidenceTotal,
+    correct: highConfidenceCorrect,
+    accuracy:
+      highConfidenceTotal > 0
+        ? Number(((highConfidenceCorrect / highConfidenceTotal) * 100).toFixed(1))
+        : 0,
+  },
+  games,
+});
+    
   } catch (e) {
     return NextResponse.json(
       {
