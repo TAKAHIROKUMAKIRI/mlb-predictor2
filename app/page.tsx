@@ -572,7 +572,9 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
   const [error, setError] = useState("");
-
+const [backtest, setBacktest] = useState<any>(null);
+const [backtestLoading, setBacktestLoading] = useState(false);
+  
   async function loadGames() {
     setLoading(true);
     setError("");
