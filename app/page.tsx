@@ -983,38 +983,70 @@ return (
             }}
           >
             <div
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 24,
-                padding: 18,
-              }}
-            >
-              <h3>データ状態</h3>
-              <p style={{ color: "#64748b", lineHeight: 1.7 }}>
-                試合データ：Vercel API → MLB Stats API
-                <br />
-                詳細指標：2026実データ
-                <br />
-                最終更新：{lastUpdated || "--"}
-              </p>
-            </div>
+  style={{
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 24,
+    padding: 18,
+  }}
+>
+  <h3>指標の見方</h3>
+  <p style={{ color: "#64748b", lineHeight: 1.7 }}>
+    OPS / wOBA / wRAA / wRC は高いほど良く、
+    FIPは低いほど良く、UZRは高いほど守備貢献が高いです。
+  </p>
+</div>
 
-            <div
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e2e8f0",
-                borderRadius: 24,
-                padding: 18,
-              }}
-            >
-              <h3>指標の見方</h3>
-              <p style={{ color: "#64748b", lineHeight: 1.7 }}>
-                OPS / wOBA / wRAA / wRC は高いほど良く、
-                FIPは低いほど良く、UZRは高いほど守備貢献が高いです。
-              </p>
-            </div>
-          </aside>
+<section
+  style={{
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: 24,
+    padding: 18,
+    marginTop: 16,
+  }}
+>
+  <h3>バックテスト</h3>
+
+  <button
+    onClick={runBacktest}
+    style={{
+      background: "#041E42",
+      color: "#fff",
+      border: "none",
+      borderRadius: 999,
+      padding: "10px 16px",
+      cursor: "pointer",
+      fontWeight: 700,
+    }}
+  >
+    {backtestLoading
+      ? "集計中..."
+      : "直近100試合で検証"}
+  </button>
+
+  {backtest && backtest.ok && (
+    <div style={{ marginTop: 16 }}>
+      <p>
+        全体：
+        {backtest.correct}
+        /
+        {backtest.total}
+        （{backtest.accuracy}%）
+      </p>
+
+      <p>
+        70%以上：
+        {backtest.highConfidence70?.correct}
+        /
+        {backtest.highConfidence70?.total}
+        （{backtest.highConfidence70?.accuracy}%）
+      </p>
+    </div>
+  )}
+</section>
+
+</aside>
         </div>
       </div>
     </main>
