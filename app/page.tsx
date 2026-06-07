@@ -888,6 +888,8 @@ border: "1px solid rgba(255,255,255,0.15)",
 
           {filtered.map((game) => {
             const prob = winProbability(game);
+          const pregame =
+  pregameProbability(game);
 const reasons = predictionReasons(game);
           const confidence = confidenceLabel(prob);
 
