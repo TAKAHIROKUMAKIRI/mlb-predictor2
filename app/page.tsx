@@ -1117,13 +1117,38 @@ return (
             background: g.hit ? "#ecfdf5" : "#fff1f2",
           }}
         >
+
+          <div
+  style={{
+    fontSize: 12,
+    color: "#64748b",
+    marginBottom: 4,
+  }}
+>
+  {new Date(g.date).toLocaleDateString("ja-JP")}
+</div>
+
+<div style={{ fontWeight: 800 }}>
+  {g.away} {g.awayScore} - {g.homeScore} {g.home}
+</div>
+          
           <div style={{ fontWeight: 800 }}>
             {g.away} {g.awayScore} - {g.homeScore} {g.home}
           </div>
 
           <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>
-            予想：{g.predicted} / 結果：{g.winner}
-          </div>
+  予想：
+  {g.predicted}
+  （
+  {Math.max(
+    g.prob?.away ?? 0,
+    g.prob?.home ?? 0
+  )}
+  %）
+
+  ／ 結果：
+  {g.winner}
+</div>
 
           <div
             style={{
