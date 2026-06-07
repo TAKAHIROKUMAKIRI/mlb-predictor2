@@ -365,11 +365,10 @@ function Metric({
   return (
     <div
       style={{
-        background: "#ffffff",
-        color: "#0f172a",
-        borderRadius: 14,
-        padding: 10,
-        border: "1px solid #e2e8f0",
+        background: "#FFFFFF",
+color: "#041E42",
+border: "1px solid #D1D9E6",
+boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
       }}
     >
       <div style={{ color: "#64748b", fontSize: 12 }}>
@@ -379,7 +378,9 @@ function Metric({
         style={{
           fontSize: 16,
           fontWeight: 800,
-          color: isGood(type, value) ? "#047857" : "#0f172a",
+          color: isGood(type, value)
+  ? "#15803D"
+  : "#041E42",
         }}
       >
         {fmt(value)}
