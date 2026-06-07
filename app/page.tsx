@@ -436,6 +436,8 @@ function TeamBlock({
   bullpen,
   recentForm,
   probability,
+  pregameProbability,
+  status,
 }: any) {
   return (
     <div
@@ -952,6 +954,7 @@ return (
                   }}
                 >
                   <TeamBlock
+  <TeamBlock
   side="Away"
   name={game.away}
   score={game.awayScore}
@@ -961,9 +964,12 @@ return (
   bullpen={game.awayBullpen}
   recentForm={game.awayRecentForm}
   probability={prob.away}
+  pregameProbability={pregame.away}
+  status={game.status}
 />
 
                   <TeamBlock
+  <TeamBlock
   side="Home"
   name={game.home}
   score={game.homeScore}
@@ -973,6 +979,8 @@ return (
   bullpen={game.homeBullpen}
   recentForm={game.homeRecentForm}
   probability={prob.home}
+  pregameProbability={pregame.home}
+  status={game.status}
 />
                 </div>
 
