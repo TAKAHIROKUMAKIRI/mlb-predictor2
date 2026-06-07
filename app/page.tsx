@@ -1085,24 +1085,66 @@ return (
   </button>
 
   {backtest && backtest.ok && (
-    <div style={{ marginTop: 16 }}>
-      <p>
-        全体：
-        {backtest.correct}
-        /
-        {backtest.total}
-        （{backtest.accuracy}%）
-      </p>
+  <div style={{ marginTop: 16 }}>
+    <h4>集計結果</h4>
 
-      <p>
-        70%以上：
-        {backtest.highConfidence70?.correct}
-        /
-        {backtest.highConfidence70?.total}
-        （{backtest.highConfidence70?.accuracy}%）
-      </p>
+    <p>全体：{backtest.correct}/{backtest.total}（{backtest.accuracy}%）</p>
+
+    <p>
+      60%以上：
+      {backtest.highConfidence60?.correct ?? 0}/
+      {backtest.highConfidence60?.total ?? 0}
+      （{backtest.highConfidence60?.accuracy ?? 0}%）
+    </p>
+
+    <p>
+      70%以上：
+      {backtest.highConfidence70?.correct ?? 0}/
+      {backtest.highConfidence70?.total ?? 0}
+      （{backtest.highConfidence70?.accuracy ?? 0}%）
+    </p>
+
+    <h4 style={{ marginTop: 18 }}>試合別結果</h4>
+
+    <div style={{ display: "grid", gap: 8 }}>
+      {backtest.games?.map((g: any, idx: number) => (
+        <div
+          key={idx}
+          style={{
+            border: "1px solid #e2e8f0",
+            borderRadius: 14,
+            padding: 10,
+            background: g.hit ? "#ecfdf5" : "#fff1f2",
+          }}
+        >
+          <div style={{ fontWeight: 800 }}>
+            {g.away} {g.awayScore} - {g.homeScore} {g.home}
+          </div>
+
+          <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>
+            予想：{g.predicted} / 結果：{g.winner}
+          </div>
+
+          <div
+            style={{
+              marginTop: 6,
+              fontWeight: 800,
+              color: g.hit ? "#047857" : "#be123c",
+            }}
+          >
+            {g.hit ? "的中" : "非的中"}
+          </div>
+
+          {g.prob && (
+            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+              予想勝率：Away {g.prob.away}% / Home {g.prob.home}%
+            </div>
+          )}
+        </div>
+      ))}
     </div>
-  )}
+  </div>
+)}
 </section>
 
 </aside>
