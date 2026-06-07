@@ -519,6 +519,19 @@ function TeamBlock({
           >
             勝率 {probability}%
           </div>
+          {game.status === "LIVE" && (
+  <div
+    style={{
+      marginTop: 8,
+      fontSize: 12,
+      color: "#64748b",
+    }}
+  >
+    試合前予想：
+    {pregame.away}% -
+    {pregame.home}%
+  </div>
+)}
         </div>
       </div>
 
