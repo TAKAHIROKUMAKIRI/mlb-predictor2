@@ -65,9 +65,12 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return Math.max(-12, Math.min(12, score));
 }
 
+function recentFormBonus(form?: any) {
+  return form?.bonus || 0;
+}
+
 function homeAwayBonus(record?: any) {
-  if (!record) return 0;
-  return record.bonus || 0;
+  return record?.bonus || 0;
 }
 
 function bullpenBonus(teamMetrics: any, bullpen?: any) {
