@@ -598,6 +598,7 @@ export default function Page() {
   const [games, setGames] = useState<any[]>([]);
   const [tab, setTab] = useState("ALL");
   const [query, setQuery] = useState("");
+  const [openDate, setOpenDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState("");
   const [error, setError] = useState("");
