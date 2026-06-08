@@ -1166,8 +1166,12 @@ return (
         }}
       >
         {new Date(day.date).toLocaleDateString("ja-JP")}　
-        {day.correct}/{day.total} 的中
-        （{((day.correct / day.total) * 100).toFixed(1)}%）
+        {filteredCorrect}/{filteredGames.length} 的中
+（
+{filteredGames.length > 0
+  ? ((filteredCorrect / filteredGames.length) * 100).toFixed(1)
+  : "0.0"}
+%）
       </div>
 
       {openDate === day.date && (
