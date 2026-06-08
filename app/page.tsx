@@ -681,18 +681,16 @@ const [backtestLoading, setBacktestLoading] = useState(false);
   return games.filter((g) => {
     const status = String(g.status || "").toUpperCase();
 
+    const isFinal =
+      status === "FINAL" ||
+      status === "FINISHED" ||
+      status === "GAME_OVER";
+
     const matchTab =
       tab === "ALL" ||
       (tab === "LIVE" && status === "LIVE") ||
       (tab === "SCHEDULED" && status === "SCHEDULED") ||
-      (
-        tab === "FINAL" &&
-        (
-          status === "FINAL" ||
-          status === "FINISHED" ||
-          status === "GAME_OVER"
-        )
-      );
+      (tab === "FINAL" && isFinal);
 
     const matchQuery =
       !q ||
