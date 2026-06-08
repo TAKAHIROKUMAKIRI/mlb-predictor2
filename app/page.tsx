@@ -1082,76 +1082,69 @@ return (
 
     <h4 style={{ marginTop: 18 }}>試合別結果</h4>
 
-    <div style={{ display: "grid", gap: 8 }}>
-      {backtest.games?.map((g: any, idx: number) => (
-        <div
-          key={idx}
-          style={{
-            border: "1px solid #e2e8f0",
-            borderRadius: 14,
-            padding: 10,
-            background: g.hit ? "#ecfdf5" : "#fff1f2",
-          }}
-        >
-
-          <div
-  style={{
-    fontSize: 12,
-    color: "#64748b",
-    marginBottom: 4,
-  }}
->
-  {new Date(g.date).toLocaleDateString("ja-JP")}
-</div>
-
-<div style={{ fontWeight: 800 }}>
-  {g.away} {g.awayScore} - {g.homeScore} {g.home}
-</div>
-          
-          <div style={{ fontWeight: 800 }}>
-            {g.away} {g.awayScore} - {g.homeScore} {g.home}
-          </div>
-
-          <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>
-  予想：
-{g.predicted}
-（勝率
-{
-  g.predicted === g.away
-    ? g.prob?.away
-    : g.prob?.home
-}
-%）
-
-  ／ 結果：
-  {g.winner}
-</div>
-
-          <div
-            style={{
-              marginTop: 6,
-              fontWeight: 800,
-              color: g.hit ? "#047857" : "#be123c",
-            }}
-          >
-            {g.hit ? "的中" : "非的中"}
-          </div>
-
-          {g.prob && (
-            <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
-              予想勝率：Away {g.prob.away}% / Home {g.prob.home}%
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-</section>
-
-</aside>
-        </div>
+    <div style={{ display: "grid", gap: 10 }}>
+  {backtest.dailyResults?.map((day: any) => (
+    <div
+      key={day.date}
+      style={{
+        border: "1px solid #e2e8f0",
+        borderRadius: 14,
+        overflow: "hidden",
+        background: "#ffffff",
+      }}
+    >
+      <div
+        onClick={() =>
+          setOpenDate(openDate === day.date ? null : day.date)
+        }
+        style={{
+          cursor: "pointer",
+          padding: 12,
+          fontWeight: 800,
+          background: "#f8fafc",
+        }}
+      >
+        {new Date(day.date).toLocaleDateString("ja-JP")}　
+        {day.correct}/{day.total} 的中
+        （{((day.correct / day.total) * 100).toFixed(1)}%）
       </div>
-    </main>
-  );
-}
+
+      {openDate === day.date && (
+        <div style={{ padding: 12, display: "grid", gap: 8 }}>
+          {day.games.map((g: any, idx: number) => (
+            <div
+              key={idx}
+              style={{
+                border: "1px solid #e2e8f0",
+                borderRadius: 12,
+                padding: 10,
+                background: g.hit ? "#ecfdf5" : "#fff1f2",
+              }}
+            >
+              <div style={{ fontWeight: 800 }}>
+                {g.away} {g.awayScore} - {g.homeScore} {g.home}
+              </div>
+
+              <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>
+                予想：{g.predicted}
+                （勝率
+                {g.predicted === g.away ? g.prob?.away : g.prob?.home}
+                %） ／ 結果：{g.winner}
+              </div>
+
+              <div
+                style={{
+                  marginTop: 6,
+                  fontWeight: 800,
+                  color: g.hit ? "#047857" : "#be123c",
+                }}
+              >
+                {g.hit ? "的中" : "非的中"}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  ))}
+</div>
