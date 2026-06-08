@@ -1138,13 +1138,14 @@ return (
 
           <div style={{ fontSize: 13, color: "#475569", marginTop: 4 }}>
   予想：
-  {g.predicted}
-  （
-  {Math.max(
-    g.prob?.away ?? 0,
-    g.prob?.home ?? 0
-  )}
-  %）
+{g.predicted}
+（勝率
+{
+  g.predicted === g.away
+    ? g.prob?.away
+    : g.prob?.home
+}
+%）
 
   ／ 結果：
   {g.winner}
