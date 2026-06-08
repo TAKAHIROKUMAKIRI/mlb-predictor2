@@ -64,6 +64,7 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
 
   return Math.max(-12, Math.min(12, score));
 }
+
 function homeAwayBonus(record?: any) {
   if (!record) return 0;
   return record.bonus || 0;
