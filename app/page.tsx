@@ -1075,11 +1075,36 @@ return (
     </p>
 
     <p>
-      70%以上：
-      {backtest.highConfidence70?.correct ?? 0}/
-      {backtest.highConfidence70?.total ?? 0}
-      （{backtest.highConfidence70?.accuracy ?? 0}%）
-    </p>
+  全体：
+  {backtest.correct}
+  /
+  {backtest.total}
+  （{backtest.accuracy}%）
+</p>
+
+<p>
+  55%以上：
+  {backtest.over55?.correct}
+  /
+  {backtest.over55?.total}
+  （{backtest.over55?.accuracy}%）
+</p>
+
+<p>
+  60%以上：
+  {backtest.over60?.correct}
+  /
+  {backtest.over60?.total}
+  （{backtest.over60?.accuracy}%）
+</p>
+
+<p>
+  65%以上：
+  {backtest.over65?.correct}
+  /
+  {backtest.over65?.total}
+  （{backtest.over65?.accuracy}%）
+</p>
 
     <h4 style={{ marginTop: 18 }}>試合別結果</h4>
 
