@@ -1152,13 +1152,16 @@ return (
     filteredGames.filter((g: any) => g.hit).length;
 
   return (
-    <div key={day.date}>
-      style={{
-        border: "1px solid #e2e8f0",
-        borderRadius: 14,
-        overflow: "hidden",
-        background: "#ffffff",
-      }}
+  <div
+    key={day.date}
+    style={{
+      border: "1px solid #e2e8f0",
+      borderRadius: 14,
+      overflow: "hidden",
+      background: "#ffffff",
+    }}
+  >
+    <div
 
         onClick={() =>
           setOpenDate(openDate === day.date ? null : day.date)
