@@ -1163,7 +1163,14 @@ return (
 
       {openDate === day.date && (
         <div style={{ padding: 12, display: "grid", gap: 8 }}>
-          {day.games.map((g: any, idx: number) => (
+          {day.games
+  .filter((g: any) => {
+    if (backtestFilter === "ALL") return true;
+
+    const maxProb = Math.max(g.prob?.away ?? 0, g.prob?.home ?? 0);
+    return maxProb >= Number(backtestFilter);
+  })
+  .map((g: any, idx: number) => (
             <div
               key={idx}
               style={{
