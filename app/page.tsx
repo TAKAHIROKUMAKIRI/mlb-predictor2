@@ -1136,14 +1136,20 @@ return (
 
     <div style={{ display: "grid", gap: 10 }}>
   {backtest.dailyResults?.map((day: any) => {
+
   const filteredGames = day.games.filter((g: any) => {
     if (backtestFilter === "ALL") return true;
 
-    const maxProb = Math.max(g.prob?.away ?? 0, g.prob?.home ?? 0);
+    const maxProb = Math.max(
+      g.prob?.away ?? 0,
+      g.prob?.home ?? 0
+    );
+
     return maxProb >= Number(backtestFilter);
   });
 
-  const filteredCorrect = filteredGames.filter((g: any) => g.hit).length;
+  const filteredCorrect =
+    filteredGames.filter((g: any) => g.hit).length;
 
   return (
     <div key={day.date}>
@@ -1176,14 +1182,7 @@ return (
 
       {openDate === day.date && (
         <div style={{ padding: 12, display: "grid", gap: 8 }}>
-          {day.games
-  .filter((g: any) => {
-    if (backtestFilter === "ALL") return true;
-
-    const maxProb = Math.max(g.prob?.away ?? 0, g.prob?.home ?? 0);
-    return maxProb >= Number(backtestFilter);
-  })
-  .map((g: any, idx: number) => (
+          {filteredGames.map((g: any, idx: number) => (
             <div
               key={idx}
               style={{
