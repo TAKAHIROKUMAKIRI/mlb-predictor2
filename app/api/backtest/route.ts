@@ -113,30 +113,23 @@ const maxProb = Math.max(prob.away, prob.home);
 if (maxProb >= 55) {
   roi55Stake += 1000;
   roi55Profit += addRoi(hit, fairOdds);
-}
 
-if (maxProb >= 60) {
-  roi60Stake += 1000;
-  roi60Profit += addRoi(hit, fairOdds);
-}
-
-if (maxProb >= 65) {
-  roi65Stake += 1000;
-  roi65Profit += addRoi(hit, fairOdds);
-}
-const maxProb = Math.max(prob.away, prob.home);
-
-if (maxProb >= 55) {
   over55Total += 1;
   if (hit) over55Correct += 1;
 }
 
 if (maxProb >= 60) {
+  roi60Stake += 1000;
+  roi60Profit += addRoi(hit, fairOdds);
+
   over60Total += 1;
   if (hit) over60Correct += 1;
 }
 
 if (maxProb >= 65) {
+  roi65Stake += 1000;
+  roi65Profit += addRoi(hit, fairOdds);
+
   over65Total += 1;
   if (hit) over65Correct += 1;
 }
