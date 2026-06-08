@@ -604,6 +604,7 @@ export default function Page() {
   const [error, setError] = useState("");
 const [backtest, setBacktest] = useState<any>(null);
 const [backtestLoading, setBacktestLoading] = useState(false);
+  const [backtestFilter, setBacktestFilter] = useState<"ALL" | "55" | "60" | "65">("ALL");
 
   async function runBacktest() {
   setBacktestLoading(true);
@@ -1065,6 +1066,31 @@ return (
   <div style={{ marginTop: 16 }}>
     <h4>集計結果</h4>
 
+    <div style={{ display: "flex", gap: 8, margin: "12px 0" }}>
+  {[
+    ["ALL", "全て"],
+    ["55", "55%以上"],
+    ["60", "60%以上"],
+    ["65", "65%以上"],
+  ].map(([value, label]) => (
+    <button
+      key={value}
+      onClick={() => setBacktestFilter(value as any)}
+      style={{
+        background: backtestFilter === value ? "#041E42" : "#ffffff",
+        color: backtestFilter === value ? "#ffffff" : "#041E42",
+        border: "1px solid #d9e2ec",
+        borderRadius: 999,
+        padding: "8px 12px",
+        fontWeight: 800,
+        cursor: "pointer",
+      }}
+    >
+      {label}
+    </button>
+  ))}
+</div>
+    
     <p>全体：{backtest.correct}/{backtest.total}（{backtest.accuracy}%）</p>
 
     <p>
