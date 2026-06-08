@@ -97,8 +97,31 @@ return {
     new Date(b.date).getTime() -
     new Date(a.date).getTime()
 );
-    
-    return NextResponse.json({
+
+const dailyResults: Record<string, any> = {};
+
+for (const game of games) {
+  const day = String(game.date).slice(0, 10);
+
+  if (!dailyResults[day]) {
+    dailyResults[day] = {
+      date: day,
+      total: 0,
+      correct: 0,
+      games: [],
+    };
+  }
+
+  dailyResults[day].total += 1;
+
+  if (game.hit) {
+    dailyResults[day].correct += 1;
+  }
+
+  dailyResults[day].games.push(game);
+}
+
+return NextResponse.json({
   ok: true,
   target: "last30FinalGames",
   total: games.length,
