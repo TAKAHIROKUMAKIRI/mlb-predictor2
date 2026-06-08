@@ -1159,8 +1159,7 @@ return (
         overflow: "hidden",
         background: "#ffffff",
       }}
-    >
-      <div
+
         onClick={() =>
           setOpenDate(openDate === day.date ? null : day.date)
         }
