@@ -42,8 +42,14 @@ const normalizedGames = await Promise.all(
 );
 
 let correct = 0;
-let highConfidenceTotal = 0;
-let highConfidenceCorrect = 0;
+let over55Total = 0;
+let over55Correct = 0;
+
+let over60Total = 0;
+let over60Correct = 0;
+
+let over65Total = 0;
+let over65Correct = 0;
 const games = normalizedGames.map((g) => {
       const away = g.away;
 const home = g.home;
