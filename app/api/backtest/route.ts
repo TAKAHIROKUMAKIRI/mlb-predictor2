@@ -43,6 +43,14 @@ const normalizedGames = await Promise.all(
 
 let correct = 0;
     let roiStake = 0;
+    let roi55Stake = 0;
+let roi55Profit = 0;
+
+let roi60Stake = 0;
+let roi60Profit = 0;
+
+let roi65Stake = 0;
+let roi65Profit = 0;
 let roiProfit = 0;
 let over55Total = 0;
 let over55Correct = 0;
@@ -83,12 +91,38 @@ const fairOdds =
   );
 
 const hit = predicted === winner;
+
 roiStake += 1000;
 
 if (hit) {
   roiProfit += 1000 * fairOdds - 1000;
 } else {
   roiProfit -= 1000;
+}
+
+function addRoi(hit: boolean, fairOdds: number) {
+  if (hit) {
+    return 1000 * fairOdds - 1000;
+  }
+
+  return -1000;
+}
+
+const maxProb = Math.max(prob.away, prob.home);
+
+if (maxProb >= 55) {
+  roi55Stake += 1000;
+  roi55Profit += addRoi(hit, fairOdds);
+}
+
+if (maxProb >= 60) {
+  roi60Stake += 1000;
+  roi60Profit += addRoi(hit, fairOdds);
+}
+
+if (maxProb >= 65) {
+  roi65Stake += 1000;
+  roi65Profit += addRoi(hit, fairOdds);
 }
 const maxProb = Math.max(prob.away, prob.home);
 
