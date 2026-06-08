@@ -88,6 +88,7 @@ return {
   winner,
   predicted,
   hit,
+  prob,
 };
     });
 
