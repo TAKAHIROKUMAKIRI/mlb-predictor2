@@ -209,8 +209,37 @@ return NextResponse.json({
       ? Number(((roiProfit / roiStake) * 100).toFixed(1))
       : 0,
 },
-  
+
+roiByThreshold: {
   over55: {
+    stake: roi55Stake,
+    profit: Math.round(roi55Profit),
+    roi:
+      roi55Stake > 0
+        ? Number(((roi55Profit / roi55Stake) * 100).toFixed(1))
+        : 0,
+  },
+
+  over60: {
+    stake: roi60Stake,
+    profit: Math.round(roi60Profit),
+    roi:
+      roi60Stake > 0
+        ? Number(((roi60Profit / roi60Stake) * 100).toFixed(1))
+        : 0,
+  },
+
+  over65: {
+    stake: roi65Stake,
+    profit: Math.round(roi65Profit),
+    roi:
+      roi65Stake > 0
+        ? Number(((roi65Profit / roi65Stake) * 100).toFixed(1))
+        : 0,
+  },
+},
+
+over55: {
   total: over55Total,
   correct: over55Correct,
   accuracy:
