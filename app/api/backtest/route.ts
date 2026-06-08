@@ -35,7 +35,7 @@ export async function GET() {
       }
     }
 
-    const last30 = finals.slice(-100);
+    const last30 = finals.slice(-300);
 
 const normalizedGames = await Promise.all(
   last30.map((g) => normalizeBacktestGame(g))
