@@ -1132,6 +1132,36 @@ return (
   （{backtest.over65?.accuracy}%）
 </p>
 
+    <h4 style={{ marginTop: 16 }}>ROI</h4>
+
+<p>
+  全体：
+  {backtest.roi?.profit >= 0 ? "+" : ""}
+  {backtest.roi?.profit?.toLocaleString()}円
+  （ROI {backtest.roi?.roi}%）
+</p>
+
+<p>
+  55%以上：
+  {backtest.roiByThreshold?.over55?.profit >= 0 ? "+" : ""}
+  {backtest.roiByThreshold?.over55?.profit?.toLocaleString()}円
+  （ROI {backtest.roiByThreshold?.over55?.roi}%）
+</p>
+
+<p>
+  60%以上：
+  {backtest.roiByThreshold?.over60?.profit >= 0 ? "+" : ""}
+  {backtest.roiByThreshold?.over60?.profit?.toLocaleString()}円
+  （ROI {backtest.roiByThreshold?.over60?.roi}%）
+</p>
+
+<p>
+  65%以上：
+  {backtest.roiByThreshold?.over65?.profit >= 0 ? "+" : ""}
+  {backtest.roiByThreshold?.over65?.profit?.toLocaleString()}円
+  （ROI {backtest.roiByThreshold?.over65?.roi}%）
+</p>
+    
     <h4 style={{ marginTop: 18 }}>試合別結果</h4>
 
     <div style={{ display: "grid", gap: 10 }}>
