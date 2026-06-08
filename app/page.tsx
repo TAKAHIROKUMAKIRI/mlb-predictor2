@@ -1059,7 +1059,7 @@ return (
   >
     {backtestLoading
       ? "集計中..."
-      : "直近100試合で検証"}
+      : "直近300試合で検証"}
   </button>
 
   {backtest && backtest.ok && (
