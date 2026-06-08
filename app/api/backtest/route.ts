@@ -42,6 +42,8 @@ const normalizedGames = await Promise.all(
 );
 
 let correct = 0;
+    let roiStake = 0;
+let roiProfit = 0;
 let over55Total = 0;
 let over55Correct = 0;
 
@@ -67,8 +69,27 @@ const predicted =
     ? away
     : home;
 
-const hit = predicted === winner;
+const predictedProb =
+  predicted === away
+    ? prob.away
+    : prob.home;
 
+const fairOdds =
+  Number(
+    (
+      1 /
+      (predictedProb / 100)
+    ).toFixed(2)
+  );
+
+const hit = predicted === winner;
+roiStake += 1000;
+
+if (hit) {
+  roiProfit += 1000 * fairOdds - 1000;
+} else {
+  roiProfit -= 1000;
+}
 const maxProb = Math.max(prob.away, prob.home);
 
 if (maxProb >= 55) {
@@ -85,7 +106,7 @@ if (maxProb >= 65) {
   over65Total += 1;
   if (hit) over65Correct += 1;
 }
-  
+
 if (hit) correct += 1;
 
 return {
@@ -93,16 +114,15 @@ return {
   away,
   home,
 
-  awayPitcherMetrics:
-    g.awayPitcherMetrics,
-
-  homePitcherMetrics:
-    g.homePitcherMetrics,
+  awayPitcherMetrics: g.awayPitcherMetrics,
+  homePitcherMetrics: g.homePitcherMetrics,
 
   awayScore,
   homeScore,
   winner,
   predicted,
+  predictedProb,
+  fairOdds,
   hit,
   prob,
 };
