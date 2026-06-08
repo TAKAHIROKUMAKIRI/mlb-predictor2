@@ -1136,19 +1136,19 @@ return (
                 style={{
                   marginTop: 6,
                   fontWeight: 800,
-                  color: g.hit ? "#047857" : "#be123c",
-                }}
-              >
-                {g.hit ? "的中" : "非的中"}
-              </div>
-            </div>
+                        color: g.hit ? "#047857" : "#be123c",
+    }}
+  >
+    {g.hit ? "的中" : "非的中"}
+  </div>
+</div>
           ))}
         </div>
       )}
     </div>
-    ))}
+  ))}
 </div>
-  </div>
+</div>
 )}
 </section>
 </aside>
