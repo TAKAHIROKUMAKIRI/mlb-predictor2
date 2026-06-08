@@ -709,8 +709,22 @@ async function normalizeGame(g: any, date: string) {
 }
 
 async function fetchScheduleByDate(date: string) {
+  const base = new Date(date);
+
+  const start = new Date(base);
+  start.setDate(start.getDate() - 1);
+
+  const end = new Date(base);
+  end.setDate(end.getDate() + 1);
+
+  const startDate = start.toISOString().slice(0, 10);
+  const endDate = end.toISOString().slice(0, 10);
+
   const url =
-    `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}&hydrate=team,linescore,probablePitcher`;
+    `https://statsapi.mlb.com/api/v1/schedule?sportId=1` +
+    `&startDate=${startDate}` +
+    `&endDate=${endDate}` +
+    `&hydrate=team,linescore,probablePitcher`;
 
   const res = await fetch(url, {
     cache: "no-store",
@@ -722,11 +736,17 @@ async function fetchScheduleByDate(date: string) {
 
   const data = await res.json();
 
-  const rawGames = data.dates?.[0]?.games || [];
+  const rawGames =
+    data.dates?.flatMap((d: any) =>
+      (d.games || []).map((g: any) => ({
+        game: g,
+        date: d.date,
+      }))
+    ) || [];
 
   return Promise.all(
-    rawGames.map((g: any) =>
-      normalizeGame(g, data.dates?.[0]?.date || date)
+    rawGames.map(({ game, date }: any) =>
+      normalizeGame(game, date)
     )
   );
 }
