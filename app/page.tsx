@@ -207,11 +207,8 @@ function confidenceLabel(prob: { away: number; home: number }) {
 }
 
 function pregameProbability(game: any) {
-  const parkAdjustment =
-    PARK_FACTOR[game.venue] || 0;
-
-  const homeAdv =
-    homeAdvantageFor(game.venue) || 2.5;
+   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
+  const homeAdv = homeAdvantageFor(game.venue) || 2.5;
 
   let away =
     50 +
@@ -233,9 +230,13 @@ function pregameProbability(game: any) {
 
   away -= parkAdjustment;
 
-  away = Math.round(
-    Math.max(3, Math.min(97, away))
-  );
+  away = 50 + (away - 50) * 0.65;
+  
+  if (!Number.isFinite(away)) {
+    away = 50;
+  }
+
+  away = Math.round(Math.max(8, Math.min(92, away)));
 
   return {
     away,
