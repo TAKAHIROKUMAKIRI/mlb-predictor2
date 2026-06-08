@@ -167,6 +167,15 @@ return NextResponse.json({
       ? Number(((correct / games.length) * 100).toFixed(1))
       : 0,
 
+  roi: {
+  stake: roiStake,
+  profit: Math.round(roiProfit),
+  roi:
+    roiStake > 0
+      ? Number(((roiProfit / roiStake) * 100).toFixed(1))
+      : 0,
+},
+  
   over55: {
   total: over55Total,
   correct: over55Correct,
