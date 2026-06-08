@@ -631,11 +631,13 @@ function backtestWinProbability(game: any) {
 
   away -= parkAdjustment;
 
+  away = 50 + (away - 50) * 0.65;
+  
   if (!Number.isFinite(away)) {
     away = 50;
   }
 
-  away = Math.round(Math.max(3, Math.min(97, away)));
+  away = Math.round(Math.max(8, Math.min(92, away)));
 
   return {
     away,
