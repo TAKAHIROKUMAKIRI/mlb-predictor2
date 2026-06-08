@@ -147,14 +147,32 @@ return NextResponse.json({
       ? Number(((correct / games.length) * 100).toFixed(1))
       : 0,
 
-  highConfidence70: {
-    total: highConfidenceTotal,
-    correct: highConfidenceCorrect,
-    accuracy:
-      highConfidenceTotal > 0
-        ? Number(((highConfidenceCorrect / highConfidenceTotal) * 100).toFixed(1))
-        : 0,
-  },
+  over55: {
+  total: over55Total,
+  correct: over55Correct,
+  accuracy:
+    over55Total > 0
+      ? Number(((over55Correct / over55Total) * 100).toFixed(1))
+      : 0,
+},
+
+over60: {
+  total: over60Total,
+  correct: over60Correct,
+  accuracy:
+    over60Total > 0
+      ? Number(((over60Correct / over60Total) * 100).toFixed(1))
+      : 0,
+},
+
+over65: {
+  total: over65Total,
+  correct: over65Correct,
+  accuracy:
+    over65Total > 0
+      ? Number(((over65Correct / over65Total) * 100).toFixed(1))
+      : 0,
+},
 
   dailyResults: Object.values(dailyResults),
 
