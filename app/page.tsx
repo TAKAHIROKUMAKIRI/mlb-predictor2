@@ -1135,9 +1135,18 @@ return (
     <h4 style={{ marginTop: 18 }}>試合別結果</h4>
 
     <div style={{ display: "grid", gap: 10 }}>
-  {backtest.dailyResults?.map((day: any) => (
-    <div
-      key={day.date}
+  {backtest.dailyResults?.map((day: any) => {
+  const filteredGames = day.games.filter((g: any) => {
+    if (backtestFilter === "ALL") return true;
+
+    const maxProb = Math.max(g.prob?.away ?? 0, g.prob?.home ?? 0);
+    return maxProb >= Number(backtestFilter);
+  });
+
+  const filteredCorrect = filteredGames.filter((g: any) => g.hit).length;
+
+  return (
+    <div key={day.date}>
       style={{
         border: "1px solid #e2e8f0",
         borderRadius: 14,
