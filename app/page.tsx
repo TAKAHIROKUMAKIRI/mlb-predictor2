@@ -244,13 +244,6 @@ function pregameProbability(game: any) {
 }
 
 function winProbability(game: any) {
-  if (game.status === "FINAL") {
-    if (game.awayScore === game.homeScore) return { away: 50, home: 50 };
-
-    return game.awayScore > game.homeScore
-      ? { away: 100, home: 0 }
-      : { away: 0, home: 100 };
-  }
 
   const parkAdjustment = PARK_FACTOR[game.venue] || 0;
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
