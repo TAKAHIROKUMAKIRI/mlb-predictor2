@@ -70,25 +70,19 @@ function homeAwayBonus(record?: any) {
   return record.bonus || 0;
 }
 
-function bullpenBonus(
-  teamMetrics: any,
-  bullpen?: any
-) {
+function bullpenBonus(teamMetrics: any, bullpen?: any) {
   if (!bullpen) return 0;
 
   let score = 0;
 
-  // 疲労
-  score -= bullpen.fatigueScore * 0.6;
+  score -= (bullpen.fatigueScore || 0) * 0.6;
 
-  // ERA
-  if (bullpen.era <= 3.50) score += 3;
-  else if (bullpen.era <= 4.20) score += 1;
-  else if (bullpen.era >= 5.50) score -= 3;
+  if (bullpen.era <= 3.5) score += 3;
+  else if (bullpen.era <= 4.2) score += 1;
+  else if (bullpen.era >= 5.5) score -= 3;
 
-  // WHIP
-  if (bullpen.whip <= 1.20) score += 2;
-  else if (bullpen.whip >= 1.40) score -= 2;
+  if (bullpen.whip <= 1.2) score += 2;
+  else if (bullpen.whip >= 1.4) score -= 2;
 
   return Math.max(-8, Math.min(8, score));
 }
