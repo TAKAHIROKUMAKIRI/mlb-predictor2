@@ -130,6 +130,7 @@ return NextResponse.json({
     games.length > 0
       ? Number(((correct / games.length) * 100).toFixed(1))
       : 0,
+
   highConfidence70: {
     total: highConfidenceTotal,
     correct: highConfidenceCorrect,
@@ -138,6 +139,9 @@ return NextResponse.json({
         ? Number(((highConfidenceCorrect / highConfidenceTotal) * 100).toFixed(1))
         : 0,
   },
+
+  dailyResults: Object.values(dailyResults),
+
   games,
 });
     
