@@ -35,51 +35,35 @@ function homeAdvantageFor(venue: string) {
 }
 
 function strength(teamMetrics: any, pitcherMetrics?: any) {
-  if (
-    !teamMetrics ||
-    teamMetrics.ops === null ||
-    teamMetrics.ops === undefined
-  ) {
-    return 0;
+  if (!teamMetrics) return 0;
+
+  let score = 0;
+
+  score += (teamMetrics.ops - 0.7) * 35;
+  score += (teamMetrics.woba - 0.31) * 55;
+  score += (teamMetrics.wraa || 0) * 0.05;
+  score += (teamMetrics.wrc - 100) * 0.04;
+  score += (4.2 - teamMetrics.fip) * 1.2;
+  score += (teamMetrics.uzr || 0) * 0.08;
+
+  if (pitcherMetrics?.era != null) {
+    score += (4.2 - pitcherMetrics.era) * 1.2;
   }
 
-  const offense =
-    ((teamMetrics.ops - 0.7) * 170) +
-    ((teamMetrics.woba - 0.315) * 260) +
-    teamMetrics.wraa * 0.18 +
-    teamMetrics.wrc * 0.015;
+  if (pitcherMetrics?.fip != null) {
+    score += (4.2 - pitcherMetrics.fip) * 1.4;
+  }
 
-  const teamPitching = (4.2 - teamMetrics.fip) * 12;
+  if (pitcherMetrics?.whip != null) {
+    score += (1.3 - pitcherMetrics.whip) * 2;
+  }
 
-  const defense = teamMetrics.uzr * 0.45;
+  if (pitcherMetrics?.k9 != null) {
+    score += (pitcherMetrics.k9 - 8) * 0.25;
+  }
 
-  // 先発投手補正は強すぎると勝率が極端になるため、控えめに反映
-  const starterPitching =
-    pitcherMetrics &&
-    pitcherMetrics.era !== null &&
-    pitcherMetrics.fip !== null &&
-    pitcherMetrics.whip !== null &&
-    pitcherMetrics.k9 !== null
-      ? ((4.2 - pitcherMetrics.era) * 4) +
-        ((4.2 - pitcherMetrics.fip) * 3) +
-        ((1.3 - pitcherMetrics.whip) * 8) +
-        ((pitcherMetrics.k9 - 8.5) * 1)
-      : 0;
-
-  return offense + teamPitching + defense + starterPitching;
+  return Math.max(-12, Math.min(12, score));
 }
-
-function recentFormBonus(recentForm: any) {
-  if (!recentForm) return 0;
-
-  const score =
-    recentForm.wins * 1.5 +
-    recentForm.runDiff * 0.05 +
-    recentForm.wraa * 0.08;
-
-  return Math.max(-3, Math.min(3, score));
-}
-
 function homeAwayBonus(record?: any) {
   if (!record) return 0;
   return record.bonus || 0;
