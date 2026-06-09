@@ -232,49 +232,27 @@ function winProbability(game: any) {
   const homeAdv = homeAdvantageFor(game.venue) || 2.5;
 
   let away =
-  50 +
-  (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
-  (recentFormBonus(game.awayRecentForm) || 0) +
-  (homeAwayBonus(game.awayRoadRecord) || 0) +
-  (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
-  (matchupBonus(game) || 0) +
-  (game.headToHead?.bonus || 0) +
-  (game.awayRecentPitcherForm?.bonus ?? 0) -
-  (
-    (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
-    (recentFormBonus(game.homeRecentForm) || 0) +
-    (homeAwayBonus(game.homeHomeRecord) || 0) +
-    (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
-    (game.homeRecentPitcherForm?.bonus ?? 0) +
-    homeAdv
-  );
+    50 +
+    (strength(game.awayMetrics, game.awayPitcherMetrics) || 0) +
+    (recentFormBonus(game.awayRecentForm) || 0) +
+    (homeAwayBonus(game.awayRoadRecord) || 0) +
+    (bullpenBonus(game.awayMetrics, game.awayBullpen) || 0) +
+    (matchupBonus(game) || 0) +
+    (game.headToHead?.bonus || 0) +
+    (game.awayRecentPitcherForm?.bonus ?? 0) -
+    (
+      (strength(game.homeMetrics, game.homePitcherMetrics) || 0) +
+      (recentFormBonus(game.homeRecentForm) || 0) +
+      (homeAwayBonus(game.homeHomeRecord) || 0) +
+      (bullpenBonus(game.homeMetrics, game.homeBullpen) || 0) +
+      (game.homeRecentPitcherForm?.bonus ?? 0) +
+      homeAdv
+    );
 
   away -= parkAdjustment;
- 
-away = 50 + (away - 50) * 0.65;
 
-  if (game.status === "LIVE") {
-    const awayScore = game.awayScore || 0;
-    const homeScore = game.homeScore || 0;
-    const scoreDiff = awayScore - homeScore;
-
-    const inningText = String(game.inning || "");
-    const inningNumber = Number(inningText.replace(/[^0-9]/g, "")) || 1;
-
-    const lateGameMultiplier =
-      inningNumber >= 8 ? 28 :
-      inningNumber >= 6 ? 22 :
-      inningNumber >= 4 ? 18 :
-      14;
-
-    away += scoreDiff * lateGameMultiplier;
-
-    if (inningNumber >= 7 && scoreDiff > 0) away += 4;
-    if (inningNumber >= 7 && scoreDiff < 0) away -= 4;
-    if (inningNumber >= 9 && scoreDiff > 0) away += 8;
-    if (inningNumber >= 9 && scoreDiff < 0) away -= 8;
-  }
-
+  away = 50 + (away - 50) * 0.65;
+  
   if (!Number.isFinite(away)) {
     away = 50;
   }
