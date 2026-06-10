@@ -355,6 +355,15 @@ function metricsFor(teamName?: string) {
     "Minnesota Twins": { ops: 0.728, woba: 0.320, wraa: 3.9, wrc: 102, fip: 4.0, uzr: 1.7 },
     "Chicago White Sox": { ops: 0.631, woba: 0.279, wraa: -35.2, wrc: 75, fip: 4.7, uzr: -6.4 },
     "Atlanta Braves": { ops: 0.773, woba: 0.341, wraa: 31.8, wrc: 126, fip: 3.5, uzr: 4.1 },
+"Athletics": { ops: 0.698, woba: 0.307, wraa: -8.8, wrc: 93, fip: 4.4, uzr: -2.6 },
+"Cleveland Guardians": { ops: 0.706, woba: 0.312, wraa: -3.4, wrc: 98, fip: 4.0, uzr: 2.1 },
+"Kansas City Royals": { ops: 0.702, woba: 0.308, wraa: -5.8, wrc: 94, fip: 4.1, uzr: 0.5 },
+"Los Angeles Angels": { ops: 0.687, woba: 0.301, wraa: -15.1, wrc: 88, fip: 4.5, uzr: -4.7 },
+"Pittsburgh Pirates": { ops: 0.676, woba: 0.298, wraa: -17.8, wrc: 86, fip: 4.2, uzr: -1.4 },
+"San Diego Padres": { ops: 0.748, woba: 0.329, wraa: 14.0, wrc: 111, fip: 3.8, uzr: 2.8 },
+"Tampa Bay Rays": { ops: 0.704, woba: 0.309, wraa: -4.9, wrc: 95, fip: 4.0, uzr: 1.0 },
+"Baltimore Orioles": { ops: 0.742, woba: 0.325, wraa: 11.0, wrc: 109, fip: 4.0, uzr: 2.2 },
+"Colorado Rockies": { ops: 0.670, woba: 0.295, wraa: -21.0, wrc: 83, fip: 4.8, uzr: -5.0 },
   };
 
   return (
