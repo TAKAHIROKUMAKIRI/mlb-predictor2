@@ -691,6 +691,338 @@ async function fetchStartingPitchers(gamePk: number) {
   }
 }
 
+async function fetchBullpenFatigue(teamId?: number, referenceDate?: string) {
+  if (!teamId) {
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const start = new Date(end);
+    start.setDate(start.getDate() - 3);
+
+    const startDate = start.toISOString().slice(0, 10);
+    const endDate = end.toISOString().slice(0, 10);
+
+    // まず直近3日間の試合一覧だけ取得
+    const scheduleUrl =
+      `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}` +
+      `&startDate=${startDate}&endDate=${endDate}&gameType=R`;
+
+    const scheduleRes = await fetch(scheduleUrl, {
+      cache: "no-store",
+    });
+
+    if (!scheduleRes.ok) {
+      throw new Error("bullpen schedule fetch failed");
+    }
+
+    const scheduleData = await scheduleRes.json();
+
+    let appearances = 0;
+    let innings = 0;
+let earnedRuns = 0;
+let strikeouts = 0;
+let walks = 0;
+let hits = 0;
+    let pitches = 0;
+
+    for (const d of scheduleData.dates || []) {
+      for (const g of d.games || []) {
+        if (g.status?.abstractGameState !== "Final") continue;
+
+        const gamePk = g.gamePk;
+        if (!gamePk) continue;
+
+        // 試合ごとにboxscoreを直接取得
+        const boxscoreUrl =
+          `https://statsapi.mlb.com/api/v1/game/${gamePk}/boxscore`;
+
+        const boxscoreRes = await fetch(boxscoreUrl, {
+          cache: "no-store",
+        });
+
+        if (!boxscoreRes.ok) continue;
+
+        const boxscore = await boxscoreRes.json();
+
+        const side =
+          boxscore.teams?.away?.team?.id === teamId
+            ? boxscore.teams.away
+            : boxscore.teams?.home?.team?.id === teamId
+              ? boxscore.teams.home
+              : null;
+
+        if (!side?.players) continue;
+
+        for (const player of Object.values(side.players) as any[]) {
+          const pitching = player?.stats?.pitching;
+          if (!pitching) continue;
+
+          const gamesStarted = Number(pitching.gamesStarted || 0);
+const numberOfPitches = Number(pitching.numberOfPitches || 0);
+const ip = parseInnings(pitching.inningsPitched);
+
+// 先発投手は除外
+if (gamesStarted > 0) {
+  continue;
+}
+
+innings += ip;
+
+earnedRuns +=
+  Number(pitching.earnedRuns || 0);
+
+strikeouts +=
+  Number(pitching.strikeOuts || 0);
+
+walks +=
+  Number(pitching.baseOnBalls || 0);
+
+hits +=
+  Number(pitching.hits || 0);
+          
+          // 先発投手も含まれるため、登板投手としてまず集計
+          // 完全に0回の投手は除外
+          if (ip > 0) {
+            appearances += 1;
+            pitches += numberOfPitches;
+          }
+        }
+      }
+    }
+
+
+    const era =
+  innings > 0
+    ? (earnedRuns * 9) / innings
+    : 0;
+
+const whip =
+  innings > 0
+    ? (walks + hits) / innings
+    : 0;
+    
+    
+    const fatigueScore = Math.min(
+      10,
+      appearances * 0.45 + pitches * 0.018
+    );
+
+    return {
+  appearances,
+  pitches,
+
+  fatigueScore:
+    Number(fatigueScore.toFixed(1)),
+
+  era:
+    Number(era.toFixed(2)),
+
+  whip:
+    Number(whip.toFixed(2)),
+
+  strikeouts,
+
+  innings:
+    Number(innings.toFixed(1)),
+};
+  } catch (e) {
+    return {
+      appearances: 0,
+      pitches: 0,
+      fatigueScore: 0,
+    };
+  }
+}
+
+async function fetchHeadToHead(
+  awayTeamId?: number,
+  homeTeamId?: number
+) {
+  if (!awayTeamId || !homeTeamId) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const season = currentSeason();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/schedule` +
+      `?sportId=1` +
+      `&season=${season}` +
+      `&teamId=${awayTeamId}` +
+      `&gameType=R`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    let awayWins = 0;
+    let homeWins = 0;
+
+    for (const d of data.dates || []) {
+      for (const g of d.games || []) {
+        const awayId = g.teams?.away?.team?.id;
+        const homeId = g.teams?.home?.team?.id;
+
+        const isMatchup =
+          (awayId === awayTeamId &&
+            homeId === homeTeamId) ||
+          (awayId === homeTeamId &&
+            homeId === awayTeamId);
+
+        if (!isMatchup) continue;
+
+        if (
+          g.status?.abstractGameState !== "Final"
+        ) {
+          continue;
+        }
+
+        const awayScore =
+          g.teams?.away?.score ?? 0;
+
+        const homeScore =
+          g.teams?.home?.score ?? 0;
+
+        if (awayId === awayTeamId) {
+          if (awayScore > homeScore) awayWins++;
+          else homeWins++;
+        } else {
+          if (homeScore > awayScore) awayWins++;
+          else homeWins++;
+        }
+      }
+    }
+
+    const totalGames =
+      awayWins + homeWins;
+
+    const bonus =
+      (awayWins - homeWins) * 0.5;
+
+    return {
+      awayWins,
+      homeWins,
+      totalGames,
+      bonus,
+    };
+  } catch (e) {
+    return {
+      awayWins: 0,
+      homeWins: 0,
+      totalGames: 0,
+      bonus: 0,
+    };
+  }
+}
+
+async function fetchRecentPitcherForm(playerId?: number, referenceDate?: string) {
+  if (!playerId) {
+    return {
+      games: 0,
+      era: null,
+      whip: null,
+      k9: null,
+      innings: 0,
+      bonus: 0,
+    };
+  }
+
+  try {
+    const end = referenceDate ? new Date(referenceDate) : new Date();
+    end.setDate(end.getDate() - 1);
+
+    const season = end.getFullYear();
+
+    const url =
+      `https://statsapi.mlb.com/api/v1/people/${playerId}/stats` +
+      `?stats=gameLog&group=pitching&season=${season}`;
+
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) throw new Error("recent pitcher form fetch failed");
+
+    const data = await res.json();
+
+    const splits = data.stats?.[0]?.splits || [];
+
+    const recent = splits
+      .filter((s: any) => {
+        const d = new Date(s.date);
+        return d < end;
+      })
+      .slice(-5);
+
+    let innings = 0;
+    let earnedRuns = 0;
+    let walks = 0;
+    let hits = 0;
+    let strikeouts = 0;
+
+    for (const s of recent) {
+      const stat = s.stat || {};
+
+      innings += parseInnings(stat.inningsPitched);
+      earnedRuns += Number(stat.earnedRuns || 0);
+      walks += Number(stat.baseOnBalls || 0);
+      hits += Number(stat.hits || 0);
+      strikeouts += Number(stat.strikeOuts || 0);
+    }
+
+    const era = innings > 0 ? (earnedRuns * 9) / innings : null;
+    const whip = innings > 0 ? (walks + hits) / innings : null;
+    const k9 = innings > 0 ? (strikeouts * 9) / innings : null;
+
+    let bonus = 0;
+
+    if (era !== null) {
+      if (era <= 2.8) bonus += 2;
+else if (era <= 3.5) bonus += 1;
+else if (era >= 5.0) bonus -= 2;
+    }
+
+    if (whip !== null) {
+      if (whip <= 1.05) bonus += 2;
+      else if (whip >= 1.4) bonus -= 2;
+    }
+
+    return {
+      games: recent.length,
+      era: era === null ? null : Number(era.toFixed(2)),
+      whip: whip === null ? null : Number(whip.toFixed(2)),
+      k9: k9 === null ? null : Number(k9.toFixed(1)),
+      innings: Number(innings.toFixed(1)),
+      bonus: Math.max(-3, Math.min(3, bonus)),
+    };
+  } catch (e) {
+    return {
+      games: 0,
+      era: null,
+      whip: null,
+      k9: null,
+      innings: 0,
+      bonus: 0,
+    };
+  }
+}
+
 async function normalizeBacktestGame(g: any) {
   const away = g.teams?.away?.team?.name || "Away";
   const home = g.teams?.home?.team?.name || "Home";
