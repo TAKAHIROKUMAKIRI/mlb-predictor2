@@ -289,16 +289,18 @@ over65: {
 }
 
 const PARK_FACTOR: Record<string, number> = {
-  "Coors Field": 2,
-  "Great American Ball Park": 1.2,
-  "Yankee Stadium": 0.8,
-  "Fenway Park": 0.6,
-  "Chase Field": 0.5,
-  "T-Mobile Park": -1,
-  "Oracle Park": -0.8,
-  "Petco Park": -0.8,
-  "Comerica Park": -0.5,
-  "Dodger Stadium": -0.3,
+  "Coors Field": 8,
+  "Great American Ball Park": 4,
+  "Yankee Stadium": 3,
+  "Fenway Park": 2,
+
+  "Dodger Stadium": -2,
+  "T-Mobile Park": -2,
+  "Petco Park": -3,
+  "Oracle Park": -3,
+  "Citi Field": -1,
+
+  "Tropicana Field": -1,
 };
 
 function strength(teamMetrics: any, pitcherMetrics?: any) {
