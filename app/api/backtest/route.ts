@@ -654,6 +654,8 @@ function matchupBonus(game: any) {
   const h = game.homeMetrics;
 
   if (!a || !h) return 0;
+  if (a.ops == null || a.wrc == null || a.wraa == null) return 0;
+  if (h.ops == null || h.wrc == null || h.wraa == null) return 0;
 
   const awayScore =
     a.wrc * 0.03 +
@@ -665,7 +667,9 @@ function matchupBonus(game: any) {
     h.wraa * 0.04 +
     h.ops * 20;
 
-  return Math.max(-3, Math.min(3, (awayScore - homeScore) * 0.25));
+  const diff = awayScore - homeScore;
+
+  return Math.max(-3, Math.min(3, diff * 0.25));
 }
 
 function homeAdvantageFor(venue?: string) {
