@@ -860,9 +860,7 @@ async function fetchHeadToHead(
   }
 
   try {
-    const season = referenceDate
-  ? new Date(referenceDate).getFullYear()
-  : new Date().getFullYear();
+    const season = currentSeason();
 
     const url =
       `https://statsapi.mlb.com/api/v1/schedule` +
