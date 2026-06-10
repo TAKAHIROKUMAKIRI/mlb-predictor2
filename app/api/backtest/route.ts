@@ -1094,7 +1094,6 @@ const headToHead =
   await fetchHeadToHead(
     awayTeamId,
     homeTeamId,
-    g.gameDate
   );
 
 const awayRecentPitcherForm =
