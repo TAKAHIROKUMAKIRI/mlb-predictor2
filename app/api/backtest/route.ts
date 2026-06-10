@@ -153,6 +153,41 @@ return {
   hit,
   prob,
 };
+  return {
+  date: g.gameDate,
+  away,
+  home,
+
+  awayPitcherMetrics:
+    g.awayPitcherMetrics,
+
+  homePitcherMetrics:
+    g.homePitcherMetrics,
+
+  awayScore,
+  homeScore,
+  winner,
+  predicted,
+  hit,
+  prob,
+
+  awayRecentForm: g.awayRecentForm,
+  homeRecentForm: g.homeRecentForm,
+
+  awayRoadRecord: g.awayRoadRecord,
+  homeHomeRecord: g.homeHomeRecord,
+
+  awayBullpen: g.awayBullpen,
+  homeBullpen: g.homeBullpen,
+
+  headToHead: g.headToHead,
+
+  awayRecentPitcherForm:
+    g.awayRecentPitcherForm,
+
+  homeRecentPitcherForm:
+    g.homeRecentPitcherForm,
+};
     });
 
     games.sort(
