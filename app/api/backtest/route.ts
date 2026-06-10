@@ -144,6 +144,9 @@ return {
   awayPitcherMetrics: g.awayPitcherMetrics,
   homePitcherMetrics: g.homePitcherMetrics,
 
+  awayMetrics: g.awayMetrics,
+homeMetrics: g.homeMetrics,
+  
   awayScore,
   homeScore,
   winner,
