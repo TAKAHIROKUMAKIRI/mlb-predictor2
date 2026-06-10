@@ -332,9 +332,9 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return Math.max(-12, Math.min(12, score));
 }
 
-const season = referenceDate
-  ? new Date(referenceDate).getFullYear()
-  : new Date().getFullYear();
+function currentSeason() {
+  return new Date().getFullYear();
+}
 
 function metricsFor(teamName?: string) {
   const TEAM_METRICS: Record<string, any> = {
@@ -860,7 +860,9 @@ async function fetchHeadToHead(
   }
 
   try {
-    const season = currentSeason();
+    const season = referenceDate
+  ? new Date(referenceDate).getFullYear()
+  : new Date().getFullYear();
 
     const url =
       `https://statsapi.mlb.com/api/v1/schedule` +
