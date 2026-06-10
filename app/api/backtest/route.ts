@@ -741,8 +741,39 @@ const homeHomeRecord =
     "home",
     g.gameDate
   );
+
+const awayBullpen =
+  await fetchBullpenFatigue(
+    awayTeamId,
+    g.gameDate
+  );
+
+const homeBullpen =
+  await fetchBullpenFatigue(
+    homeTeamId,
+    g.gameDate
+  );
+
+const headToHead =
+  await fetchHeadToHead(
+    awayTeamId,
+    homeTeamId,
+    g.gameDate
+  );
+
+const awayRecentPitcherForm =
+  await fetchRecentPitcherForm(
+    starters.awayPitcherId,
+    g.gameDate
+  );
+
+const homeRecentPitcherForm =
+  await fetchRecentPitcherForm(
+    starters.homePitcherId,
+    g.gameDate
+  );
   
-  return {
+return {
     id: g.gamePk,
     date: g.gameDate,
     gameDate: g.gameDate || "",
@@ -761,8 +792,8 @@ const homeHomeRecord =
     awayPitcherMetrics,
 homePitcherMetrics,
 
-    awayBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
-    homeBullpen: { appearances: 0, pitches: 0, fatigueScore: 0 },
+    awayBullpen,
+homeBullpen,
 
     awayRecentForm,
     homeRecentForm,
@@ -770,10 +801,10 @@ homePitcherMetrics,
     awayRoadRecord,
 homeHomeRecord,
 
-    headToHead: { awayWins: 0, homeWins: 0, totalGames: 0, bonus: 0 },
+    headToHead,
 
-    awayRecentPitcherForm: { bonus: 0 },
-    homeRecentPitcherForm: { bonus: 0 },
+awayRecentPitcherForm,
+homeRecentPitcherForm,
   };
 }
 function backtestWinProbability(game: any) {
