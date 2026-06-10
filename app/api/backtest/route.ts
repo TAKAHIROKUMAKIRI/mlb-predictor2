@@ -672,8 +672,8 @@ function matchupBonus(game: any) {
   return Math.max(-3, Math.min(3, diff * 0.25));
 }
 
-function homeAdvantageFor(venue?: string) {
-  return 2.5;
+function homeAdvantageFor(venue: string) {
+  return HOME_ADVANTAGE[venue] ?? 2.5;
 }
 
 async function fetchStartingPitchers(gamePk: number) {
