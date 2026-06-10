@@ -138,6 +138,7 @@ if (hit) correct += 1;
 
 return {
   date: g.gameDate,
+  venue: g.venue,
   away,
   home,
 
