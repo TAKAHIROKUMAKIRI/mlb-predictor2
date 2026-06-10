@@ -332,6 +332,10 @@ function strength(teamMetrics: any, pitcherMetrics?: any) {
   return Math.max(-12, Math.min(12, score));
 }
 
+const season = referenceDate
+  ? new Date(referenceDate).getFullYear()
+  : new Date().getFullYear();
+
 function metricsFor(teamName?: string) {
   const TEAM_METRICS: Record<string, any> = {
     "Arizona Diamondbacks": { ops: 0.740, woba: 0.326, wraa: 9.6, wrc: 106, fip: 4.18, uzr: 1.3 },
