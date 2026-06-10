@@ -303,6 +303,19 @@ const PARK_FACTOR: Record<string, number> = {
   "Tropicana Field": -1,
 };
 
+const HOME_ADVANTAGE: Record<string, number> = {
+  "Coors Field": 3.5,
+  "Fenway Park": 3.0,
+  "Yankee Stadium": 3.0,
+  "Dodger Stadium": 3.0,
+  "T-Mobile Park": 3.0,
+  "Petco Park": 3.0,
+
+  "Tropicana Field": 2.0,
+  "Oakland Coliseum": 2.0,
+  "loanDepot park": 2.0,
+};
+
 function strength(teamMetrics: any, pitcherMetrics?: any) {
   if (!teamMetrics) return 0;
 
