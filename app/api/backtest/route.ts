@@ -354,6 +354,7 @@ function metricsFor(teamName?: string) {
     "Cincinnati Reds": { ops: 0.711, woba: 0.313, wraa: -2.9, wrc: 96, fip: 4.1, uzr: -2.1 },
     "Minnesota Twins": { ops: 0.728, woba: 0.320, wraa: 3.9, wrc: 102, fip: 4.0, uzr: 1.7 },
     "Chicago White Sox": { ops: 0.631, woba: 0.279, wraa: -35.2, wrc: 75, fip: 4.7, uzr: -6.4 },
+    "Atlanta Braves": { ops: 0.773, woba: 0.341, wraa: 31.8, wrc: 126, fip: 3.5, uzr: 4.1 },
   };
 
   return (
